@@ -1,0 +1,114 @@
+# === Gradle / Android ===
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.aab
+*.apk
+output-metadata.json
+
+# IntelliJ
+*.iml
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+google-services.json
+
+# Android Profiling
+*.hprof
+
+# === Visual Studio / .NET / C# ===
+# Build results
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+TestResults/
+
+# Visual Studio files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# Rider IDE
+.idea/
+*.sln.iml
+
+# NuGet packages
+*.nupkg
+packages/
+# Uncomment if using Paket
+# paket-files/
+
+# Visual Studio Code
+.vscode/
+
+# ASP.NET Core / API
+appsettings.Development.json
+appsettings.Local.json
+wwwroot/
+
+# Dotnet tool files
+*.dotCover
+*.dotCover.Shadow
+
+# === LaTeX / TeXstudio ===
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.run.xml
+*.synctex
+*.synctex.gz
+*.toc
+*.xdv
+*-blx.bib
+*.txss
+*.txsprofile
+
+# Generated document output; keep source asset PDFs trackable.
+/Documentatie/**/main.pdf
+
+# Others
+*.log
+*.pyc
+__pycache__/
+*.vs/
+/ApiaryServer/ApiaryServer/Migrations/*
+!/ApiaryServer/ApiaryServer/Migrations/20260603204104_AddInspectionV2Fields.cs
+!/ApiaryServer/ApiaryServer/Migrations/20260603204104_AddInspectionV2Fields.Designer.cs
+!/ApiaryServer/ApiaryServer/Migrations/20260605194337_ConfigureDecimalPrecision.cs
+!/ApiaryServer/ApiaryServer/Migrations/20260605194337_ConfigureDecimalPrecision.Designer.cs
+!/ApiaryServer/ApiaryServer/Migrations/20260613121500_AddInspectionAiCellDetections.cs
+!/ApiaryServer/ApiaryServer/Migrations/AppDbContextModelSnapshot.cs
+/ApiaryServer/ApiaryServer/.env
+
+# temp UI capture artifacts
+.tmp_*
+.codex-tmp/
