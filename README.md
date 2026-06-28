@@ -2,484 +2,411 @@
 
 # 🐝 BeeSmart
 
-### Platforma full-stack pentru management apicol asistat de inteligenta artificiala
+### Carnetul digital inteligent pentru stupină
 
-*Carnet digital inteligent de stupina: colectare de date in teren, analiza AI a ramelor si suport decizional explicabil pentru apicultor.*
+**Management apicol offline-first, analiză AI a ramelor și recomandări explicabile, într-o singură aplicație Android.**
 
-![Platform](https://img.shields.io/badge/platform-Android-3DDC84)
-![Backend](https://img.shields.io/badge/backend-ASP.NET%20Core%208-512BD4)
-![Language](https://img.shields.io/badge/Kotlin%20%7C%20C%23%20%7C%20Python-blue)
-![AI](https://img.shields.io/badge/AI-DeepBee%20%7C%20TensorFlow-FF6F00)
-![Cloud](https://img.shields.io/badge/cloud-Azure%20Container%20Apps-0078D4)
+[![Android](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](BeeSmart/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?logo=kotlin&logoColor=white)](BeeSmart/app/src/main/java/com/example/beesmart/)
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-8.0-512BD4?logo=dotnet&logoColor=white)](ApiaryServer/ApiaryServer/)
+[![Python](https://img.shields.io/badge/Python-AI_Service-3776AB?logo=python&logoColor=white)](ApiaryServer/ApiaryServer/AIService/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](ApiaryServer/ApiaryServer/docker-compose.yml)
+
+[Prezentare](#prezentare) · [Capturi](#aplicația-în-imagini) · [Arhitectură](#arhitectură) · [Pornire rapidă](#pornire-rapidă) · [Testare](#testare) · [Documentație](#documentația-proiectului)
+
+<br>
+
+<img src="Documentatie/template/images/screenshots/04-dashboard-updated.jpg" width="285" alt="Dashboard-ul BeeSmart">
+&nbsp;&nbsp;&nbsp;
+<img src="Documentatie/template/images/screenshots/dashboard-radar-updated.jpg" width="285" alt="Radarul inteligent al stupinei">
 
 </div>
 
 ---
 
-## Rezumat
+## Prezentare
 
-BeeSmart este o platforma full-stack dedicata managementului apicol. Sistemul reuneste o **aplicatie mobila Android offline-first**, un **API ASP.NET Core 8** structurat pe principii de Clean Architecture si un **microserviciu Python de inteligenta artificiala** care ruleaza modelele DeepBee.
+BeeSmart este o platformă full-stack pentru managementul stupinelor, realizată ca proiect de licență. Aplicația transformă observațiile din teren într-un istoric coerent al fiecărui stup: inspecții, fotografii, tratamente, extracții, activități, condiții meteo și rezultate ale analizelor AI.
 
-Aplicatia este gandita pentru utilizarea efectiva in teren: apicultorul poate introduce date chiar si in lipsa conexiunii la internet, modificarile fiind salvate local si sincronizate automat la revenirea conectivitatii. Pentru analiza ramelor, platforma clasifica individual celulele din fagure (capacite, oua, miere, larve, nectar, polen) si calculeaza metrici spatiale folosite ulterior pentru statistici longitudinale si recomandari.
+Proiectul este construit în jurul unei realități simple: în stupină, conexiunea la internet nu este garantată. Datele pot fi introduse offline, sunt păstrate local în Room și se sincronizează automat când conexiunea revine.
 
-Principiul de proiectare urmarit este unul de **suport decizional explicabil**: inteligenta artificiala asista apicultorul prin observatii si corelatii, fara a inlocui controlul fizic al stupului sau avizul medicului veterinar.
+> **Principiul BeeSmart:** inteligența artificială oferă indicii și recomandări explicabile, dar nu înlocuiește verificarea fizică a stupului și nici diagnosticul medicului veterinar.
 
-## Cuprins
+### Ce aduce aplicația
 
-- [Functionalitati](#functionalitati)
-- [Stack tehnologic](#stack-tehnologic)
-- [Arhitectura](#arhitectura)
-- [Structura repository](#structura-repository)
-- [Cerinte preliminare](#cerinte-preliminare)
-- [Rulare rapida](#rulare-rapida)
-- [Configurare Android](#configurare-android)
-- [Configurare backend](#configurare-backend)
-- [Sincronizare offline-first](#sincronizare-offline-first)
-- [Baza de date locala (Room)](#baza-de-date-locala-room)
-- [Inteligenta artificiala: DeepBee si analiza spatiala](#inteligenta-artificiala-deepbee-si-analiza-spatiala)
-- [Statistici si suport decizional](#statistici-si-suport-decizional)
-- [API REST](#api-rest)
-- [Cod QR si deep links](#cod-qr-si-deep-links)
-- [Meteo](#meteo)
-- [Comenzi vocale](#comenzi-vocale)
-- [Notificari locale](#notificari-locale)
-- [Testare](#testare)
-- [Deployment](#deployment)
-- [Securitate](#securitate)
-- [Limitari si lucrari viitoare](#limitari-si-lucrari-viitoare)
-- [Licenta si atribuiri](#licenta-si-atribuiri)
+| Zonă | Capabilități |
+| --- | --- |
+| **Stupine și stupi** | Evidență completă, statusuri, istoric, locație, meteo și acces rapid prin cod QR |
+| **Inspecții inteligente** | Formulare structurate, fotografii, voce, indicatori despre regină, puiet, rezerve, roire și igienă |
+| **Analiză DeepBee** | Clasificarea celulelor din fagure, evaluarea calității fotografiei și metrici spațiale |
+| **Suport decizional** | Index de sănătate, radar STABLE / WATCH / CRITICAL, recomandări prioritizate și calendar sezonier |
+| **Lucrări apicole** | Task-uri, tratamente, extracții, remindere și istoric de notificări |
+| **Lucru în teren** | Funcționare offline-first, sincronizare automată, comenzi vocale și scanare QR |
 
-## Functionalitati
+## Aplicația în imagini
 
-BeeSmart functioneaza ca un **carnet digital inteligent de stupina**: colecteaza date in teren (inclusiv offline, prin formulare, voce, cod QR si fotografii), interpreteaza explicabil rama prin DeepBee, anticipeaza lucrari sezoniere si oportunitati de productie si extinde decizia de la nivel de stup la nivel de vatra, prin meteo si calitatea aerului. Inteligenta artificiala sustine apicultorul; nu inlocuieste controlul fizic sau medicul veterinar.
+Capturile de mai jos provin din aplicația Android reală și sunt aceleași imagini folosite în [lucrarea scrisă](Documentatie/template/TeX_files/chapter05.tex).
 
-### Autentificare si cont
+### Acasă și acces rapid
 
-- Inregistrare cu validare si indicator de putere a parolei (`PasswordStrength`).
-- Autentificare pe baza de JWT cu refresh token reimprospatat automat in fundal.
-- Confirmare email si resetare parola prin link (deep link).
-- Profil utilizator: vizualizare si editare a datelor de cont.
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/04-dashboard-updated.jpg" width="280" alt="Sumarul stupinei"><br>
+      <sub><b>Sumarul stupinei</b> — stare online, stupi, inspecții și scorul de sănătate</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/home-modules-updated.jpg" width="280" alt="Modulele aplicației"><br>
+      <sub><b>Acces rapid</b> — stupine, task-uri, inspecții, QR, tratamente și extracții</sub>
+    </td>
+  </tr>
+</table>
 
-### Stupine (apiaries)
+### Stupine și stupi
 
-- Creare, editare, stergere si listare a stupinelor.
-- Locatie text (utilizata pentru meteo si geocodare), descriere si sumar.
-- Acces rapid in teren prin cod QR.
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/14-apiaries-populated-updated.jpg" width="280" alt="Lista stupinelor"><br>
+      <sub><b>Stupine</b> — sumar, stare și date meteo contextuale</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/16-vatra-hives-risk-list-updated.jpg" width="280" alt="Lista stupilor cu niveluri de risc"><br>
+      <sub><b>Stupi</b> — statusuri vizibile și prioritizarea familiilor care cer atenție</sub>
+    </td>
+  </tr>
+</table>
 
-### Stupi (hives)
+### Inspecții și analiza ramei
 
-- Creare, editare, stergere si listare a stupilor per stupina.
-- Atribute: tip stup, status, prezenta si varsta matcii, rame cu albine, rame cu puiet, rame cu miere, notite.
-- Calcul automat al ultimei inspectii; fisa de detaliu per stup.
-- Ecran dedicat de statistici per stup (`HiveStatsScreen`).
-- Cod QR per stup pentru deschiderea directa a fisei.
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/inspection-list-updated.jpg" width="280" alt="Jurnalul de inspecții"><br>
+      <sub><b>Jurnalul de inspecții</b> — căutare, filtre și indicatorii principali</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/ai-photo-preview-summary.jpg" width="280" alt="Rezultatul analizei AI a ramei"><br>
+      <sub><b>Analiză AI</b> — celule detectate, încredere și verdict orientativ</sub>
+    </td>
+  </tr>
+</table>
 
-### Inspectii — Inspectie inteligenta V2
+### Evoluție și suport decizional
 
-Pe langa nucleul clasic (data, temperatura, rame, puiet, miere, polen, prezenta matcii, oua, larve, observatii, fotografii), inspectia colecteaza semnale structurale explicabile, completabile inclusiv vocal:
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/hive-deepbee-stats-updated.jpg" width="280" alt="Raport DeepBee longitudinal"><br>
+      <sub><b>Raport longitudinal</b> — evoluția indicatorilor unui stup în timp</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/hive-deepbee-distribution-updated.jpg" width="280" alt="Distribuția celulelor analizate"><br>
+      <sub><b>Distribuția celulelor</b> — puiet, rezerve și structura ultimei analize</sub>
+    </td>
+  </tr>
+</table>
 
-- **Regina si puiet:** `queenSeen`, `eggsSeen`, `larvaeSeen`, `broodPattern` (uniformitatea puietului), `broodFrames`.
-- **Roire:** `queenCellsSeen` (botci), `queenCellsWithEggs` (botci cu oua), `beardingAtEntrance` (barba la urdinis), `spaceNeeded` (spatiu insuficient).
-- **Rezerve si hranire:** `honeyFrames`, `pollenFrames`, `honeyCappingPercent` (gradul de capacire), `feedingGiven`, `waterAvailable`.
-- **Igiena si sanatate:** `moistureOrMold` (umezeala/mucegai), `deadBeesAtEntrance` (mortalitate la urdinis), `unusualBehavior`, `oldCombsToReplace` (faguri de inlocuit).
-- **Comportament:** `temperament` (blandete/agresivitate).
+### Planificarea lucrărilor
 
-Inspectiile pot fi filtrate per stup sau per stupina, iar campurile sunt salvate offline, sincronizate si afisate sumar in lista. **Limita asumata:** aplicatia inregistreaza observatii; nu stabileste diagnostic sanitar.
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/task-list-updated.jpg" width="280" alt="Lista de task-uri"><br>
+      <sub><b>Task-uri</b> — lucrări grupate după status, termen și prioritate</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="Documentatie/template/images/screenshots/treatment-list-updated.jpg" width="280" alt="Istoricul tratamentelor"><br>
+      <sub><b>Tratamente</b> — produs, doză, dată și următoarea verificare</sub>
+    </td>
+  </tr>
+</table>
 
-### Fotografii si analiza AI DeepBee
+## Funcționalități principale
 
-- Adaugarea fotografiilor de inspectie din camera sau galerie, cu cache local si upload sincronizat.
-- Analiza DeepBee a celulelor de fagure: clasificare per celula (capacite, oua, miere, larve, nectar, polen, altele), cu metadata de calitate (blur, luminozitate, contrast, acoperirea fagurelui).
-- Salvarea rezultatelor in istoricul per inspectie si utilizarea coordonatelor celulelor pentru **analiza spatiala** (compactitatea puietului, gap-uri, rezerve la margine, polen langa puiet).
-- Statusuri controlate: `success`, `low_quality`, `not_comb_image`, `uncertain_analysis`.
+- autentificare JWT, refresh token, confirmare email și resetare parolă prin deep link;
+- creare și administrare de stupine și stupi, inclusiv offline;
+- inspecție inteligentă cu date despre regină, puiet, rezerve, roire, igienă și comportament;
+- fotografii din cameră sau galerie și analiză individuală ori în lot;
+- clasificarea celulelor în `Capped`, `Eggs`, `Honey`, `Larves`, `Nectar`, `Other` și `Pollen`;
+- raport DeepBee longitudinal și distribuția ultimei analize;
+- radar inteligent la nivel de stupină și recomandări cu dovezi din jurnal;
+- evidența tratamentelor, extracțiilor și task-urilor;
+- notificări locale și reprogramarea lor după repornirea telefonului;
+- vreme curentă, prognoză și calitatea aerului prin OpenWeatherMap;
+- generare și scanare QR pentru deschiderea directă a fișei unui stup;
+- completarea vocală a formularelor în limba română;
+- sincronizare automată în fundal prin WorkManager.
 
-### Tratamente
+## Arhitectură
 
-- Inregistrarea produsului, dozei, datei si a observatiilor.
-- Termen urmator (`nextTreatmentDate`) cu **reminder programat** si canal de notificare dedicat.
-- Anularea notificarii la stergere si reprogramarea dupa repornirea telefonului.
-- Consilierul DeepBee semnaleaza depasirea termenului si recomanda verificarea schemei/prospectului. Aplicatia nu prescrie produs, doza sau tratament.
+BeeSmart este alcătuit din trei aplicații și două niveluri de persistență. Clientul Android comunică numai cu API-ul; accesul la serviciul AI este mediat de backend.
 
-### Extractii
+```mermaid
+flowchart LR
+    subgraph Mobile["Aplicația Android"]
+        UI["Jetpack Compose + Fragments"]
+        VM["ViewModel"]
+        REPO["Repository"]
+        ROOM[("Room")]
+        SYNC["Sync queue + WorkManager"]
+        UI --> VM --> REPO
+        REPO <--> ROOM
+        ROOM --> SYNC --> REPO
+    end
 
-- Inregistrarea cantitatii, datei, stupului asociat si a observatiilor.
-- Utilizate pentru trasabilitate si pentru analiza productiei de miere.
+    REPO <-->|"REST + JWT"| API["ASP.NET Core API"]
+    API <--> SQL[("SQL Server / Azure SQL")]
+    API <-->|"imagini + rezultate"| AI["DeepBee AI Service\nFlask + TensorFlow"]
+```
 
-### Activitati (tasks)
+### Client Android
 
-- Activitati per stup sau per stupina, cu marcare/demarcare ca finalizate.
-- Filtre `pending` si `overdue`.
-- Reminder programat cu notificare locala.
+- **MVVM + Repository**, cu UI reactiv în Jetpack Compose;
+- **Hilt** pentru injectarea dependențelor;
+- **Retrofit, OkHttp și Moshi** pentru comunicarea cu API-urile;
+- **Room** pentru date locale și coada de sincronizare;
+- **WorkManager** pentru procesarea operațiilor amânate;
+- **CameraX, ML Kit și ZXing** pentru fotografii și coduri QR.
 
-### Statistici si suport decizional
+### Backend
 
-- **Index compozit de sanatate** per stup si **radar** STABLE / WATCH / CRITICAL (`ApiaryIntelligenceCalculator`).
-- **Productie de miere** cu analytics si forecast, grafice lunare si comparatii intre ani (`DashboardAnalyticsCalculator`).
-- **Consilierul DeepBee** (`DeepBeeContextAdvisor`): recomandari prioritizate URGENT / IMPORTANT / WATCH / OPPORTUNITY, insotite de evidence, coreland analiza ramei cu istoricul, activitatile, tratamentele si productia.
-- **Calendar sezonier asistat:** propune lucrari de primavara, vara, toamna si iarna sub forma de activitati confirmate de apicultor (control sumar/general, rezerve, regina, apa, spatiu de cules, recolta, pregatirea iernarii, ventilatie).
-- **Scor de risc pentru roire:** combina botci cu oua, barba la urdinis, spatiu insuficient, sezon, puterea coloniei si varsta matcii; recomandarea ramane verificarea fizica.
-- **Fereastra de recolta:** foloseste `honeyCappingPercent`; sub aproximativ 33% capacire nu sugereaza recolta.
-- **Verdict de zbor** pe baza meteo (`BeeFlightAdvisor`) si analiza puiet/rezerve (`BroodAnalyzer`).
+API-ul urmează o separare de tip Clean Architecture:
 
-### Meteo
+```text
+Api → Application → Domain ← Infrastructure
+```
 
-- Integrare OpenWeatherMap pentru geocodare, vreme curenta, prognoza pe 5 zile / 3 ore si calitatea aerului, pentru locatia text a stupinei.
-- Card meteo afisat pe `HiveListScreen`; cache de geocodare permanent, date meteo cache 30 de minute.
+- controllere REST și autentificare JWT;
+- servicii de business și verificări de ownership;
+- Entity Framework Core și SQL Server;
+- Swagger/OpenAPI în mediul de dezvoltare;
+- rate limiting și aplicarea automată a migrărilor la pornire;
+- integrarea controlată cu serviciul AI.
 
-### Notificari locale
+### Serviciul AI
 
-- Alarme exacte (`AlarmManager`) pentru activitati si tratamente.
-- Istoric persistent cu stare citit/necitit si marcare ca citit.
-- Reprogramare automata dupa repornirea telefonului.
+Microserviciul Python rulează modelele DeepBee pentru segmentare și clasificare. Fluxul principal este:
 
-### Comenzi vocale
+```text
+fotografie → verificarea calității → segmentarea fagurelui
+           → detectarea celulelor → clasificare → metrici și coordonate
+```
 
-- Completarea vocala a formularelor (ro-RO) prin `VoiceCommandManager` / `SpeechRecognizer`.
-- Utila pentru folosirea cu manusi, in teren.
+Răspunsul diferențiază rezultatele valide de fotografiile slabe sau nepotrivite prin statusurile `success`, `low_quality`, `not_comb_image` și `uncertain_analysis`.
 
-### Cod QR si deep links
+## Cum funcționează modul offline-first
 
-- Cod QR per stup care deschide direct fisa in aplicatie.
-- Suport pentru schema custom `beesmart://` si HTTPS `app.beesmart.ro`.
-- Fluxuri prin deep link: confirmare email, resetare parola, navigare la stup.
+Când nu există conexiune, modificările sunt salvate imediat în Room și adăugate în coada locală. La revenirea conexiunii, `SyncManager` procesează operațiile în ordinea dependențelor:
 
-### Functionare offline-first
+```text
+APIARY → HIVE → TASK / TREATMENT / EXTRACTION / INSPECTION → INSPECTION_PHOTO
+```
 
-- Toate datele pot fi introduse fara conexiune la internet si sincronizate automat la revenire, in ordine de dependenta (vezi [Sincronizare offline-first](#sincronizare-offline-first)).
+Entitățile copil așteaptă până când părintele primește un identificator de la server. În acest fel, utilizatorul poate crea în aceeași sesiune offline o stupină, stupii ei, inspecții și fotografii fără să piardă date sau relațiile dintre ele.
 
 ## Stack tehnologic
 
-| Componenta | Tehnologii |
-|------------|-----------|
-| **Client mobil** | Kotlin, Jetpack Compose, Fragments + Navigation, Hilt, Retrofit, OkHttp, Moshi, Room, WorkManager, CameraX, ML Kit, ZXing, SpeechRecognizer |
-| **API backend** | ASP.NET Core 8.0, C#, Entity Framework Core, SQL Server / Azure SQL, JWT Bearer, Swagger/OpenAPI |
-| **Serviciu AI** | Python, Flask, TensorFlow 1.14 + Keras 2.2, OpenCV, modelele DeepBee (segmentare + clasificare) |
-| **Infrastructura** | Docker Compose (local), Azure Container Apps (productie) |
+| Componentă | Tehnologii |
+| --- | --- |
+| **Android** | Kotlin, Jetpack Compose, Fragments, Navigation, Hilt, Room, WorkManager, Retrofit, OkHttp, Moshi |
+| **Funcții mobile** | CameraX, ML Kit Barcode Scanning, ZXing, Android SpeechRecognizer, AlarmManager |
+| **Backend** | C#, ASP.NET Core 8, Entity Framework Core, JWT Bearer, Swagger/OpenAPI |
+| **Date** | Room, SQL Server 2022, Azure SQL Database |
+| **AI** | Python, Flask, OpenCV, TensorFlow, Keras, modelele DeepBee |
+| **Infrastructură** | Docker Compose, Azure Container Apps |
+| **Testare** | JUnit, MockK, Robolectric, MockWebServer, xUnit |
 
-## Arhitectura
-
-Sistemul este alcatuit din trei componente care comunica printr-un API central:
-
-```text
-   Android app  <───>  ASP.NET Core API  <───>  SQL Server / Azure SQL
-                              │
-                              ▼
-                   DeepBee AI service (Flask + TensorFlow)
-```
-
-Clientul Android comunica **exclusiv** cu API-ul, niciodata direct cu serviciul AI. API-ul mediaza apelurile catre DeepBee, valideaza si persista rezultatele.
-
-### Client Android — MVVM + Repository + Hilt
+## Structura proiectului
 
 ```text
-   Compose / Fragments ──> ViewModel ──> Repository ──> Retrofit / Room
-                                              │
-                                              ▼
-                                       SyncQueueEntity
-```
-
-- **Single Activity** (`MainActivity`): verifica starea de autentificare, gestioneaza rutarea deep link-urilor si lanseaza `ComposeAuthActivity` pentru fluxul de autentificare.
-- **Navigatie:** abordare hibrida — un nav graph pe baza de Fragments gazduieste ecrane Compose.
-- **Injectie de dependente:** module Hilt in `di/`; trei clienti OkHttp distinsi prin qualifiers `@UnauthenticatedClient` (login/register), `@AuthenticatedClient` (endpoint-uri protejate) si `@OpenWeatherClient` (meteo).
-- **Networking:** `AuthInterceptor` reimprospateaza JWT-ul sincron (Mutex, pentru a preveni race conditions), cu backoff de 30 s dupa un refresh esuat; foloseste un client de refresh dedicat pentru a evita injectarea circulara.
-- **Strat de date:** 11 repository-uri (Auth, Apiary, Hive, Task, Treatment, Extraction, Inspection, Home, UserProfile, Weather, NotificationHistory) peste API-uri Retrofit; toate raspunsurile folosesc un sealed class `Result<T>` (Success / Error / Loading).
-
-### Backend — Clean Architecture
-
-```text
-   Api ──> Application ──> Domain ──> Infrastructure
-```
-
-- **`Api`:** 7 controllere HTTP; ID-ul utilizatorului este extras din claim-urile JWT.
-- **`Application`:** DTO-uri, interfete de servicii/repository, exceptii custom, optiuni JWT.
-- **`Domain`:** entitati de business (`User` detine Apiaries, RefreshTokens, tokens de confirmare/reset; `Hive` detine Inspections, Treatments, Extractions).
-- **`Infrastructure`:** `AppDbContext` (EF Core, 13 DbSets, relatii si cascade configurate aici), 8 repository-uri cu autorizare pe baza de ownership, servicii, email, JWT si integrarea AI.
-
-`Program.cs` centralizeaza configurarea: JWT Bearer (secret validat la pornire, minimum 32 de caractere), rate limiting fixed-window (global 120 req/min per IP; `login` 5/min), `UseForwardedHeaders` pentru extragerea IP-ului in spatele unui proxy/Azure, Swagger (doar in mediul de dezvoltare) si migrari aplicate la pornire cu retry (`ApplyMigrationsWithRetry`, 10 incercari).
-
-## Structura repository
-
-```text
-BeeSmart/
-├── BeeSmart/                          # Aplicatia Android
-│   ├── app/src/main/java/com/example/beesmart/
-│   │   ├── data/local/                # Room, DAO-uri, entitati, conversii
-│   │   ├── data/repository/           # Repository-uri offline-first + analytics/advisory
-│   │   ├── di/                        # Module Hilt (App, Database, Network, Repository, ...)
-│   │   ├── network/                   # Retrofit APIs, interceptori, modele
-│   │   ├── notifications/             # Programare alarme + istoric notificari
-│   │   ├── sync/                      # SyncManager, SyncScheduler, WorkManager
-│   │   ├── ui/                        # Ecrane Compose (apiaries, hives, inspections,
-│   │   │                              #   analytics, tasks, treatment, extraction, qrcode, ...)
-│   │   └── utils/                     # NetworkConfig, helpers sesiune/fisiere/poze
-│   └── gradle/libs.versions.toml      # Versiuni dependinte centralizate
+BeeSmart-App/
+├── BeeSmart/                       # Aplicația Android
+│   ├── app/src/main/java/.../
+│   │   ├── data/local/             # Room, DAO-uri și entități
+│   │   ├── data/repository/        # Date, sincronizare și analytics
+│   │   ├── network/                # Retrofit, interceptori și modele
+│   │   ├── sync/                   # SyncManager, Worker și scheduler
+│   │   ├── notifications/          # Task-uri și tratamente
+│   │   └── ui/                     # Ecranele aplicației
+│   └── app/src/test/               # Teste JVM și de integrare
 │
 ├── ApiaryServer/
-│   ├── ApiaryServer/
-│   │   ├── Api/Controllers/           # 7 controllere HTTP
-│   │   ├── Application/               # DTO-uri, interfete, exceptii, optiuni
-│   │   ├── Domain/Entities/           # 11 entitati EF Core
-│   │   ├── Infrastructure/            # DbContext, repository-uri, servicii (incl. AiAnalysisService)
-│   │   ├── AIService/                 # Serviciu Python Flask pentru DeepBee
-│   │   ├── Migrations/                # EF Core migrations
-│   │   └── docker-compose.yml         # SQL Server + AI service + API
-│   └── ApiaryServer.Tests/            # Teste backend (xUnit)
+│   ├── ApiaryServer/               # API-ul ASP.NET Core
+│   │   ├── Api/                    # Controllere HTTP
+│   │   ├── Application/            # DTO-uri, interfețe și opțiuni
+│   │   ├── Domain/                 # Entități de business
+│   │   ├── Infrastructure/         # EF Core, repository-uri și servicii
+│   │   ├── AIService/              # Microserviciul Python DeepBee
+│   │   └── Migrations/             # Migrări EF Core
+│   └── ApiaryServer.Tests/         # Teste xUnit
 │
-└── Documentatie/                      # Audit functionalitati, screenshots, template
+└── Documentatie/                   # Lucrarea scrisă și capturile aplicației
 ```
 
-## Cerinte preliminare
+## Pornire rapidă
 
-| Componenta | Cerinte |
-|------------|---------|
-| Android | JDK 17, Android SDK, Android Studio (recomandat); cheie API OpenWeatherMap (optionala) |
-| Backend | .NET SDK 8.0; SQL Server local sau via Docker |
-| Serviciu AI | Python 3.x + dependintele din `requirements.txt` (sau rulare via Docker) |
-| Full stack | Docker si Docker Compose |
+### Cerințe
 
-## Rulare rapida
+- Android Studio, Android SDK 36 și JDK 17;
+- .NET SDK 8;
+- Docker Desktop cu Docker Compose, pentru rularea întregului backend;
+- o cheie OpenWeatherMap, opțională pentru cardurile meteo.
 
-### Android
+### 1. Backend complet cu Docker
 
-```powershell
-cd BeeSmart
-.\gradlew assembleDebug          # build debug
-.\gradlew assembleRelease        # build release
-.\gradlew testDebugUnitTest      # teste unit + integrare (JVM/Robolectric)
-.\gradlew connectedAndroidTest   # teste instrumentate (necesita device/emulator)
-```
-
-### Backend fara Docker
-
-```powershell
-cd ApiaryServer\ApiaryServer
-dotnet restore
-dotnet build
-dotnet run        # ruleaza pe http://localhost:5033
-dotnet watch      # live reload
-```
-
-### Backend cu Docker (full stack)
-
-Fisierul `docker-compose.yml` porneste cele trei servicii impreuna.
-
-```powershell
-cd ApiaryServer\ApiaryServer
-docker compose up --build -d
-docker compose down
-```
-
-Servicii expuse:
-
-| Serviciu | Adresa |
-|----------|--------|
-| SQL Server 2022 | `localhost:1433` (date in volumul `sqlserver-data`) |
-| DeepBee AI service | `localhost:5000` |
-| API | `http://localhost:8080` |
-
-## Configurare Android
-
-### Cheia OpenWeatherMap
-
-Cheia se adauga in `BeeSmart/local.properties` (fisier ignorat de Git):
-
-```properties
-openweather_api_key=your_key_here
-```
-
-In lipsa cheii, `WeatherRepository` returneaza o eroare, iar cardul meteo de pe `HiveListScreen` afiseaza starea indisponibila.
-
-### Deep links
-
-Variabilele de build sunt definite in `BeeSmart/gradle.properties`:
-
-```properties
-BEE_DEEP_LINK_HOST=app.beesmart.ro
-BEE_DEEP_LINK_SCHEME=https
-BEE_CUSTOM_SCHEME=beesmart
-```
-
-### URL-ul backend
-
-`utils/NetworkConfig.kt` directioneaza Retrofit catre endpoint-ul public (Azure Container Apps), niciodata direct catre serviciul AI.
-
-## Configurare backend
-
-Backend-ul citeste configurarea din `appsettings.json`, `appsettings.Development.json` si din variabile de mediu. Pentru rulare locala trebuie configurate cel putin:
-
-- `ConnectionStrings__DefaultConnection`
-- `Jwt__Secret` (minimum 32 de caractere aleatorii; backend-ul refuza valorile placeholder)
-- setarile SMTP (Mailtrap), pentru testarea confirmarii email / resetarii parolei
-- `AiService__BaseUrl`, daca serviciul AI ruleaza pe alta adresa (implicit in Docker: `http://ai-service:5000`)
-
-Pentru Docker Compose se creeaza un fisier `.env` in `ApiaryServer\ApiaryServer`:
+Creează fișierul `ApiaryServer/ApiaryServer/.env`:
 
 ```dotenv
-DB_PASSWORD=YourStrongPasswordHere
+DB_PASSWORD=Choose_A_Strong_SQL_Password_123!
 Jwt__Issuer=ApiaryServer
 Jwt__Audience=ApiaryClient
 Jwt__Secret=replace_with_at_least_32_random_characters
 ```
 
-### Migrari EF Core
+Pornește SQL Server, serviciul AI și API-ul:
 
 ```powershell
 cd ApiaryServer\ApiaryServer
-dotnet ef migrations add <MigrationName>
-dotnet ef database update
+docker compose up --build -d
 ```
 
-## Sincronizare offline-first
+| Serviciu | Adresă locală |
+| --- | --- |
+| API | `http://localhost:8080` |
+| Swagger | `http://localhost:8080/swagger` |
+| DeepBee AI | `http://localhost:5000` |
+| SQL Server | `localhost:1433` |
 
-Fiecare repository verifica `ConnectivityObserver.isCurrentlyOnline()` si `BackendReachability.isLikelyUnreachable()` inainte de orice apel de retea:
+Oprire:
 
-- **Offline:** scrie entitatea in Room cu `SyncStatus.PENDING_CREATE/PENDING_UPDATE/PENDING_DELETE` si adauga o intrare in `SyncQueueEntity`.
-- **Online:** apeleaza direct Retrofit; la esec, revine la cache-ul Room.
-
-`SyncQueueEntity` retine: `operationType` (CREATE / UPDATE / DELETE / COMPLETE / UNCOMPLETE), `entityType` (APIARY / HIVE / TASK / TREATMENT / EXTRACTION / INSPECTION / INSPECTION_PHOTO / USER_PROFILE), `entityLocalId`, `entityServerId`, `payload` (JSON), `retryCount`, `createdAt`. Maximum 3 reincercari inainte de `SYNC_FAILED`.
-
-`SyncManager` proceseaza coada in **ordine de dependenta**, pentru a garanta integritatea cheilor straine:
-
-```text
-APIARY → HIVE → TASK → TREATMENT → EXTRACTION → INSPECTION → INSPECTION_PHOTO
+```powershell
+docker compose down
 ```
 
-Elementele copil sunt amanate pana cand parintele primeste un `serverId`. Exceptiile `IOException` tranzitorii nu incrementeaza `retryCount`; erorile HTTP da. `SyncScheduler` + WorkManager declanseaza procesarea in fundal si la schimbarile de conectivitate.
+### 2. Aplicația Android
 
-## Baza de date locala (Room)
+Adaugă cheia meteo în `BeeSmart/local.properties`, dacă dorești integrarea OpenWeatherMap:
 
-`AppDatabase` (versiunea **8**) contine 10 entitati: `ApiaryEntity`, `HiveEntity`, `TaskEntity`, `TreatmentEntity`, `ExtractionEntity`, `InspectionEntity`, `InspectionPhotoEntity`, `SyncQueueEntity`, `InspectionAiAnalysisEntity`, `NotificationHistoryEntity`. Type converters in `Converters.kt` gestioneaza enum-uri, date si liste. Versiunea 8 a adaugat coloana `cellDetectionsJson` (implicit `"[]"`) in `InspectionAiAnalysisEntity`, pentru stocarea detectiilor AI serializate.
-
-## Inteligenta artificiala: DeepBee si analiza spatiala
-
-Fotografiile de inspectie pot fi salvate local si sincronizate ulterior. Pentru analiza AI, aplicatia trimite imaginea catre backend, iar backend-ul apeleaza serviciul DeepBee:
-
-```text
-Android (foto) ──> POST /inspections/analyze-cells ──> DeepBee POST /analyze
+```properties
+openweather_api_key=your_key_here
 ```
 
-### Serviciul DeepBee (`AIService/`)
+Construiește aplicația și rulează testele:
 
-Microserviciu Flask care clasifica celulele de fagure dintr-o imagine de rama.
+```powershell
+cd BeeSmart
+.\gradlew.bat assembleDebug
+.\gradlew.bat testDebugUnitTest
+```
 
-- **Endpoints:** `POST /analyze` (accepta `{ "image_base64": "..." }`), `GET /health`.
-- **Pipeline:** decodare base64 → verificari de calitate (dimensiune, blur, luminozitate, contrast) → segmentare semantica (`segmentation.h5`, patch-based) pentru a izola fagurele → extragerea canalului rosu + CLAHE + filtru bilateral → HoughCircles adaptiv (scale-invariant) → crop 224×224 per celula → predictie batch cu `classification.h5`.
-- **Clase** (ordinea conteaza, preluata din proiectul DeepBee): `Capped`, `Eggs`, `Honey`, `Larves`, `Nectar`, `Other`, `Pollen`.
-- **Statusuri:** `success`, `low_quality`, `not_comb_image`, `uncertain_analysis`; raspunsul include metadata de calitate si un array `cellDetections` (coordonate + clasa + confidence) per celula.
-- **Parametri de tuning:** variabilele de mediu `DEEPBEE_SEGMENTATION_MAX_SIDE` (implicit 2200 px), `DEEPBEE_SEGMENTATION_BATCH_SIZE` (16), `DEEPBEE_CLASSIFICATION_BATCH_SIZE` (64).
+APK-ul debug este generat în `BeeSmart/app/build/outputs/apk/debug/`.
 
-`AiAnalysisService` (C#) apeleaza acest serviciu prin `HttpClient` (timeout 180 s), pastreaza statusurile non-success (nu le forteaza la `success`), serializeaza `cellDetections` in `CellDetectionsJson` si mapeaza esecurile serviciului AI la erori HTTP controlate (502/504).
+> În configurația curentă, aplicația folosește endpoint-ul Azure definit în [`NetworkConfig.kt`](BeeSmart/app/src/main/java/com/example/beesmart/utils/NetworkConfig.kt). Pentru un backend local, schimbă baza URL cu `http://10.0.2.2:8080/` pe emulator sau cu adresa IP din rețeaua locală pe un telefon fizic.
 
-### Analiza spatiala (Android)
+### 3. Backend fără Docker
 
-Detectiile per celula circula end-to-end ca `CellDetection` (coordonate pixel + normalizate, `className`, `confidence`). `InspectionRepository` le (de)serializeaza cu un adapter Moshi dedicat. `BroodAnalyzer` calculeaza `SpatialMetrics` pe grid din coordonatele normalizate (compactitatea puietului, brood gap ratio, stores-edge ratio, polen langa puiet, centrii puiet/rezerve; `SPATIAL_GRID_SIZE = 8`, prag minim de 12 celule de puiet / 10 celule de rezerve).
+Este necesar un SQL Server accesibil și un serviciu AI pornit separat.
 
-## Statistici si suport decizional
+```powershell
+cd ApiaryServer\ApiaryServer
+dotnet restore
+dotnet run
+```
 
-Clasele de analiza din `data/repository/`:
+Configurează conexiunea, JWT-ul, SMTP-ul și serviciul AI prin `appsettings.Development.json`, `.env` sau variabile de mediu. Nu salva secrete reale în Git.
 
-- **`ApiaryIntelligenceCalculator`** — index compozit de sanatate per stup + radar STABLE / WATCH / CRITICAL.
-- **`DashboardAnalyticsCalculator`** — analytics privind productia de miere + forecast.
-- **`DeepBeeContextAdvisor`** — recomandari prioritizate (URGENT / IMPORTANT / WATCH / OPPORTUNITY) cu evidence, calendar sezonier si risc de roire; combina trendurile longitudinale cu `SpatialMetrics`.
-- **`BeeFlightAdvisor`** si **`BroodAnalyzer`** — verdict de zbor pe baza meteo, respectiv metrici de puiet/rezerve.
+## Configurare importantă
 
-## API REST
+| Configurație | Locație |
+| --- | --- |
+| Cheie OpenWeatherMap | `BeeSmart/local.properties` → `openweather_api_key` |
+| URL backend Android | `BeeSmart/app/src/main/java/.../utils/NetworkConfig.kt` |
+| Deep links și QR | `BeeSmart/gradle.properties` |
+| Conexiune SQL și JWT | variabile de mediu sau `appsettings.Development.json` |
+| URL serviciu AI | `AiService__BaseUrl` |
+| SMTP | secțiunea `Smtp` sau variabile de mediu echivalente |
 
-Toate endpoint-urile, cu exceptia celor de autentificare, necesita un token JWT Bearer.
-
-| Resursa | Prefix | Endpoint-uri |
-|---------|--------|--------------|
-| **Auth** | `/auth` | `POST register`, `POST login`, `POST refresh`, `POST logout`, `GET/PUT profile`, `POST resend-confirmation`, `POST confirm-email`, `GET confirm-email-link`, `POST forgot-password`, `POST reset-password`, `GET/POST reset-password-link` |
-| **Apiaries** | `/api/apiaries` | `GET`, `GET {id}`, `POST`, `PUT {id}`, `DELETE {id}` |
-| **Hives** | `/api/hives` | `GET`, `GET apiary/{apiaryId}`, `GET {id}`, `POST apiary/{apiaryId}`, `PUT {id}`, `DELETE {id}` |
-| **Inspections** | `/inspections` | `GET`, `GET apiary/{apiaryId}`, `GET hive/{hiveId}`, `GET {id}`, `POST`, `PUT {id}`, `DELETE {id}`, `POST {inspectionId}/photos`, `PUT photos/{photoId}`, `DELETE photos/{photoId}`, `POST analyze-cells`, `POST {inspectionId}/ai-analyses`, `GET hive/{hiveId}/ai-analyses` |
-| **Treatments** | `/api/treatments` | `GET`, `GET apiary/{apiaryId}`, `GET hive/{hiveId}`, `GET {id}`, `POST`, `PUT {id}`, `DELETE {id}` |
-| **Extractions** | `/api/extractions` | `GET`, `GET apiary/{apiaryId}`, `GET hive/{hiveId}`, `GET {id}`, `POST`, `PUT {id}`, `DELETE {id}` |
-| **Tasks** | `/api/tasks` | `GET`, `GET pending`, `GET overdue`, `GET apiary/{apiaryId}`, `GET hive/{hiveId}`, `GET {id}`, `POST`, `PUT {id}`, `POST {id}/complete`, `POST {id}/uncomplete`, `DELETE {id}` |
-
-`InspectionController.SaveAiAnalysis` valideaza strict detectiile primite (`ValidateCellDetections`: maximum 10.000 de intrari; coordonate pixel finite si non-negative; coordonate normalizate in intervalul 0–1; confidence valid) inainte de persistare.
-
-## Cod QR si deep links
-
-Fiecare stup poate avea un cod QR care deschide direct fisa sa in aplicatie. Sunt suportate atat schema custom, cat si HTTPS:
+Deep link-uri acceptate:
 
 ```text
 https://app.beesmart.ro/hive/{hiveId}
 beesmart://hive/{hiveId}
 ```
 
-Intent filters sunt declarate in `AndroidManifest.xml`; decodarea parametrilor de query este realizata manual in `MainActivity`. Fluxuri acoperite: confirmare email, resetare parola, navigare la stup. Scanarea foloseste CameraX + ML Kit Barcode Scanning; generarea codurilor QR foloseste ZXing (`QrCodeUtils`).
+## API REST
 
-## Meteo
+Toate resursele operaționale sunt protejate prin JWT Bearer.
 
-`WeatherApi` + `WeatherRepository` interogheaza OpenWeatherMap (geocodare, vreme curenta, prognoza pe 5 zile / 3 ore, calitatea aerului) pentru locatia text a unei stupine, printr-o instanta Retrofit dedicata (`@OpenWeatherClient`). Rezultatele de geocodare sunt cache-uite permanent, iar datele meteo sunt cache-uite 30 de minute per pereche de coordonate. Cardul este randat pe `HiveListScreen`.
+| Resursă | Prefix principal |
+| --- | --- |
+| Autentificare și profil | `/auth` |
+| Stupine | `/api/apiaries` |
+| Stupi | `/api/hives` |
+| Inspecții, fotografii și analiză AI | `/inspections` |
+| Tratamente | `/api/treatments` |
+| Extracții | `/api/extractions` |
+| Task-uri | `/api/tasks` |
 
-## Comenzi vocale
-
-`ui/components/VoiceTextField` si `VoiceFormFillerButton` ofera completarea vocala a formularelor prin `VoiceCommandManager` (Android `SpeechRecognizer`, ro-RO), care directioneaza datele catre ViewModel-ul relevant.
-
-## Notificari locale
-
-`TaskNotificationScheduler` si `TreatmentNotificationScheduler` programeaza alarme `AlarmManager` (exacte + allow-while-idle, cand este permis). `BootCompleteReceiver` reprogrameaza alarmele dupa repornire. Istoricul este persistat in `NotificationHistoryEntity`, cu stare citit/necitit.
+Schema completă și testarea interactivă a endpoint-urilor sunt disponibile în Swagger când API-ul rulează în mediul `Development`.
 
 ## Testare
 
 ### Android
 
-Testele ruleaza pe JVM prin **Robolectric** (SQLite in-memory) + **MockWebServer** — fara emulator.
+Testele rulează pe JVM prin Robolectric și folosesc MockWebServer pentru scenariile de rețea. Sunt acoperite repository-urile, ViewModel-urile, sincronizarea offline-online, retry-urile, calculele de analytics și interpretarea rezultatelor AI.
 
 ```powershell
 cd BeeSmart
-.\gradlew testDebugUnitTest
-
-# o clasa sau o metoda specifica
-.\gradlew :app:testDebugUnitTest --tests "com.example.beesmart.integration.OfflineToOnlineSyncTest"
-.\gradlew :app:testDebugUnitTest --tests "com.example.beesmart.integration.SyncEdgeCasesTest.retryOnNetworkError"
-.\gradlew :app:testDebugUnitTest --tests "com.example.beesmart.repository.ApiaryRepositoryTest"
+.\gradlew.bat testDebugUnitTest
 ```
 
-`SyncTestHarness` (in `test/integration/`) leaga o baza Room reala, un client Retrofit real si MockWebServer. `MockResponses` ofera buildere JSON pentru toate entitatile. Suitele de teste acopera: fluxuri offline → online (`integration/`), repository-uri (`repository/`), `SyncManager` (`sync/`), analytics/advisory (`data/repository/`), interceptori (`network/`) si ViewModel-uri/UI (`ui/`).
+Pentru testele instrumentate este necesar un emulator sau un dispozitiv Android:
+
+```powershell
+.\gradlew.bat connectedAndroidTest
+```
 
 ### Backend
+
+Suita xUnit verifică autentificarea, serviciile de business, ownership-ul resurselor, persistența și integrarea cu serviciul AI.
 
 ```powershell
 cd ApiaryServer
 dotnet test
 ```
 
-Teste xUnit pentru `AuthController`, serviciile Auth/Apiary/Hive/Inspection/Treatment/Extraction/Task (happy path + ownership), passthrough-ul de status in `AiAnalysisService` si verificari de precizie decimala in `AppDbContext`.
+## Securitate și limite asumate
 
-## Deployment
+- secretul JWT trebuie să aibă cel puțin 32 de caractere; serverul refuză valorile placeholder;
+- backend-ul validează ownership-ul resurselor și aplică rate limiting;
+- detectările AI sunt validate înainte de persistare;
+- AI-ul nu stabilește diagnostice și nu prescrie tratamente;
+- rezultatul analizei depinde de claritatea, lumina și poziționarea fotografiei;
+- fotografiile sunt transmise ca Data URI/Base64, o soluție potrivită prototipului, dar nu stocării la scară mare;
+- rezolvarea conflictelor între mai multe dispozitive poate fi extinsă;
+- clienții HTTP Android folosesc momentan o configurație TLS permisivă pentru dezvoltare; aceasta trebuie înlocuită cu validarea standard a certificatelor înaintea unei lansări de producție.
 
-### Docker (local)
+## Documentația proiectului
 
-Cele trei servicii sunt definite in `ApiaryServer/ApiaryServer/docker-compose.yml`: SQL Server 2022 (port 1433), serviciul AI (port 5000) si API-ul (port 8080). API-ul asteapta SQL Server si serviciul AI si citeste secretele din `.env`.
+Lucrarea de licență este păstrată în format LaTeX în directorul [`Documentatie/template`](Documentatie/template/). Puncte utile de intrare:
 
-### Azure (productie)
+- [capitolul despre tehnologii](Documentatie/template/TeX_files/chapter02.tex);
+- [proiectarea și implementarea sistemului](Documentatie/template/TeX_files/chapter04.tex);
+- [descrierea funcțională și capturile aplicației](Documentatie/template/TeX_files/chapter05.tex);
+- [concluzii și direcții viitoare](Documentatie/template/TeX_files/chapter06.tex);
+- [auditul funcționalităților apicole](Documentatie/AUDIT_FUNCTIONALITATI_APICULTURA.md).
 
-Deployment-ul public ruleaza pe **Azure Container Apps**: API-ul este expus prin HTTPS ingress, iar serviciul AI este intern (minimum 1 replica, pentru a evita cold start-ul modelelor; 2 CPU / 4 GiB, scaleaza pana la 3 replici). Persistenta foloseste **Azure SQL Database**, cu aceleasi migrari EF Core ca SQL Server local.
+## Autor și atribuiri
 
-## Securitate
+Proiect realizat de **Lixandru Valentina-Mariana**, în cadrul lucrării de licență „BeeSmart: aplicație mobilă dedicată apiculturii de precizie pentru digitalizarea și optimizarea managementului stupinelor”, Universitatea Transilvania din Brașov, 2026.
 
-- Nu se comit `local.properties`, `.env`, chei API, parole sau secrete JWT.
-- Secretul JWT trebuie sa aiba minimum 32 de caractere aleatorii; backend-ul refuza valorile placeholder la pornire.
-- Clientii Android `UnauthenticatedClient` si `AuthenticatedClient` accepta toate certificatele in dezvoltare (`TrustAllCerts`) — **comportament ce trebuie inlocuit inainte de productie**.
-- Endpoint-urile protejate folosesc JWT + verificari de ownership (`IsOwnedByUserAsync`) in servicii/repository-uri.
-- Backend-ul aplica rate limiting global (120 req/min per IP) si dedicat pe login (5/min).
-- Detectiile AI sunt validate strict inainte de persistare.
+Modelele de analiză a celulelor au la bază proiectul **DeepBee**. Atribuirile bibliotecilor și componentelor terțe sunt disponibile în [`THIRD_PARTY_NOTICES.md`](ApiaryServer/ApiaryServer/AIService/THIRD_PARTY_NOTICES.md).
 
-## Limitari si lucrari viitoare
+Proiectul nu include în prezent o licență open-source declarată.
 
-In conformitate cu principiul de suport decizional explicabil, sistemul isi asuma urmatoarele limite:
+---
 
-- AI-ul **nu stabileste diagnostice** sanitare si nu prescrie tratamente; recomandarile cer intotdeauna verificare fizica.
-- Analiza DeepBee estimeaza densitatea puietului, dar confirmarea unui model dispersat ramane in sarcina apicultorului.
-- Prognoza de productie este explicabila, insa aproximativa, si depinde de gradul de capacire introdus manual.
-
-Directii de extindere identificate: harta melifera si scorul amplasamentului, planificator pastoral, registru de incidente (intoxicatii), jurnal de greutate (stup de control), profil de selectie si ameliorare si integrarea functiilor cu impact legal pe baza legislatiei in vigoare.
-
-## Licenta si atribuiri
-
-Proiect realizat in cadrul lucrarii de licenta. _[Specificati tipul de licenta, dupa caz.]_
-
-Modelele de inteligenta artificiala se bazeaza pe proiectul **DeepBee** (segmentare si clasificare a celulelor de fagure). Atribuirile pentru bibliotecile terte sunt documentate in fisierul `THIRD_PARTY_NOTICES.md`.
+<div align="center">
+  <sub>BeeSmart — tehnologie care completează experiența apicultorului, nu o înlocuiește.</sub>
+</div>
