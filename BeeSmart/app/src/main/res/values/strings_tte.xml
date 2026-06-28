@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TaskListScreen -->
+    <string name="sx_tte_task_delete_title">Șterge task-ul</string>
+    <string name="sx_tte_task_delete_confirm">Șterge</string>
+    <string name="sx_tte_task_cancel">Anulează</string>
+    <string name="sx_tte_task_list_title">Task-uri</string>
+    <string name="sx_tte_back">Înapoi</string>
+    <string name="sx_tte_refresh">Reîmprospătează</string>
+    <string name="sx_tte_add_task_cd">Adaugă task</string>
+    <string name="sx_tte_new_task">Task nou</string>
+    <string name="sx_tte_empty_hint">Apasă pe + pentru a adăuga un task nou</string>
+    <string name="sx_tte_task_load_error">Eroare la încărcarea task-urilor</string>
+    <string name="sx_tte_retry">Reîncearcă</string>
+    <string name="sx_tte_work_plan_title">Plan de lucru apicol</string>
+    <string name="sx_tte_work_plan_subtitle">Task-uri grupate după prioritate, termen și stupină.</string>
+    <string name="sx_tte_count_total">Total</string>
+    <string name="sx_tte_count_active">Active</string>
+    <string name="sx_tte_count_overdue">Întârziate</string>
+    <string name="sx_tte_delete_cd">Șterge</string>
+
+    <!-- TaskFormScreen -->
+    <string name="sx_tte_edit_task">Editează task-ul</string>
+    <string name="sx_tte_title_label">Titlu *</string>
+    <string name="sx_tte_description_label">Descriere (opțional)</string>
+    <string name="sx_tte_priority_label">Prioritate</string>
+    <string name="sx_tte_due_date_label">Termen limită (opțional)</string>
+    <string name="sx_tte_clear_date_cd">Șterge data</string>
+    <string name="sx_tte_select_date_cd">Selectează data</string>
+    <string name="sx_tte_apiary_none">Nicio stupină</string>
+    <string name="sx_tte_apiary_label">Stupină (opțional)</string>
+    <string name="sx_tte_hive_none_specific">Niciun stup specific</string>
+    <string name="sx_tte_hive_label">Stup (opțional)</string>
+    <string name="sx_tte_save">Salvează</string>
+    <string name="sx_tte_create">Creează</string>
+
+    <!-- TreatmentFormScreen -->
+    <string name="sx_tte_add_treatment">Adaugă tratament</string>
+    <string name="sx_tte_edit_treatment">Editează tratament</string>
+    <string name="sx_tte_hive_required">Stup *</string>
+    <string name="sx_tte_treatment_type_label">Tip tratament</string>
+    <string name="sx_tte_product_name_label">Nume produs *</string>
+    <string name="sx_tte_treatment_date_label">Data efectuare</string>
+    <string name="sx_tte_next_treatment_label">Următoarea verificare / aplicare (opțional)</string>
+    <string name="sx_tte_clear_deadline_cd">Șterge termenul</string>
+    <string name="sx_tte_select_deadline_cd">Selectează termenul</string>
+    <string name="sx_tte_active_substance_label">Substanță activă</string>
+    <string name="sx_tte_dosage_label">Dozaj</string>
+    <string name="sx_tte_notes_label">Notițe</string>
+    <string name="sx_tte_save_treatment">Salvează tratamentul</string>
+
+    <!-- TreatmentListScreen -->
+    <string name="sx_tte_treatment_delete_title">Șterge tratament</string>
+    <string name="sx_tte_treatment_delete_confirm">Ești sigur că vrei să ștergi acest tratament?</string>
+    <string name="sx_tte_treatments_title">Tratamente</string>
+    <string name="sx_tte_new_treatment">Tratament nou</string>
+    <string name="sx_tte_treatments_load_error">Nu am putut încărca tratamentele</string>
+    <string name="sx_tte_unknown_error">Eroare necunoscută</string>
+    <string name="sx_tte_no_treatments_title">Nu există tratamente înregistrate</string>
+    <string name="sx_tte_no_treatments_subtitle">Adaugă tratamentele aplicate pentru a urmări istoricul sanitar al stupului.</string>
+
+    <!-- ExtractionFormScreen -->
+    <string name="sx_tte_add_extraction">Adaugă extracție</string>
+    <string name="sx_tte_edit_extraction">Editează extracție</string>
+    <string name="sx_tte_extraction_type_label">Tip extracție</string>
+    <string name="sx_tte_extraction_date_label">Data efectuare</string>
+    <string name="sx_tte_save_extraction">Salvează extracția</string>
+    <string name="sx_tte_decrease_quantity_cd">Scade cantitatea</string>
+    <string name="sx_tte_quantity_required">Cantitate *</string>
+    <string name="sx_tte_increase_quantity_cd">Crește cantitatea</string>
+    <string name="sx_tte_unit_required">Unitate de măsură *</string>
+
+    <!-- ExtractionListScreen -->
+    <string name="sx_tte_extraction_delete_title">Șterge extracție</string>
+    <string name="sx_tte_extraction_delete_confirm">Ești sigur că vrei să ștergi această extracție?</string>
+    <string name="sx_tte_extractions_title">Extracții</string>
+    <string name="sx_tte_new_extraction">Extracție nouă</string>
+    <string name="sx_tte_extractions_load_error">Nu am putut încărca extracțiile</string>
+    <string name="sx_tte_no_extractions_title">Nu există extracții înregistrate</string>
+    <string name="sx_tte_no_extractions_subtitle">Adaugă recoltările pentru a urmări producția de miere în timp.</string>
+</resources>

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BeeSmart</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_back">Bine ai revenit</string>
+    <string name="login_subtitle">Autentifică-te pentru a continua</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Parolă</string>
+    <string name="login_button">Autentificare</string>
+    <string name="forgot_password">Ai uitat parola?</string>
+    <string name="or">SAU</string>
+    <string name="dont_have_account">Nu ai un cont?</string>
+    <string name="register_link">Înregistrează-te</string>
+
+    <!-- Register Screen -->
+    <string name="create_account">Creează cont</string>
+    <string name="register_subtitle">Alătură-te BeeSmart și începe să îți gestionezi stupii</string>
+    <string name="full_name_hint">Nume complet</string>
+    <string name="register_button">Creează cont</string>
+    <string name="already_have_account">Ai deja un cont?</string>
+    <string name="login_link">Autentifică-te</string>
+    <string name="password_requirements">Minim 8 caractere</string>
+    <string name="password_weak">Slabă</string>
+    <string name="password_medium">Mediu</string>
+    <string name="password_strong">Puternică</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Acasă</string>
+    <string name="welcome">Bine ai revenit,</string>
+    <string name="user">Utilizator</string>
+    <string name="session_active">Sesiune activă și securizată</string>
+    <string name="dashboard">Panou de control</string>
+    <string name="hives">Stupi</string>
+    <string name="kg_honey">kg miere</string>
+    <string name="quick_actions">Acțiuni rapide</string>
+    <string name="add_inspection">Adaugă inspecție</string>
+    <string name="view_reports">Vezi rapoarte</string>
+    <string name="settings">Setări</string>
+    <string name="session_details">Detalii sesiune</string>
+    <string name="token_preview">Token: %1$s</string>
+    <string name="logout">Deconectare</string>
+
+    <!-- Menu Items -->
+    <string name="menu_notifications">Notificări</string>
+    <string name="menu_profile">Profil</string>
+
+    <!-- Validation Messages -->
+    <string name="error_empty_email">Emailul este obligatoriu</string>
+    <string name="error_invalid_email">Te rugăm să introduci un email valid</string>
+    <string name="error_empty_password">Parola este obligatorie</string>
+    <string name="error_password_too_short">Parola trebuie să aibă cel puțin 8 caractere</string>
+    <string name="error_empty_name">Numele este obligatoriu</string>
+    <string name="error_network">Eroare de rețea. Te rugăm să încerci din nou.</string>
+
+    <!-- Success Messages -->
+    <string name="success_login">Autentificare reușită</string>
+    <string name="success_register">Înregistrare reușită</string>
+    <string name="success_logout">Deconectare realizată cu succes</string>
+
+    <!-- Content Descriptions -->
+    <string name="app_logo">Logo aplicație</string>
+    <string name="back">Înapoi</string>
+    <string name="bee_icon">Iconiță albină</string>
+    <string name="secure_icon">Iconiță securizare</string>
+    <string name="hives_icon">Iconiță stupi</string>
+    <string name="production_icon">Iconiță producție</string>
+
+    <!-- Loading -->
+    <string name="loading">Se încarcă…</string>
+    <string name="please_wait">Te rugăm să aștepți…</string>
+
+    <!-- Hive Management -->
+    <string name="hive_name">Numele stupului</string>
+    <string name="type">Tip</string>
+    <string name="status">Stare</string>
+    <string name="edit">Editează</string>
+    <string name="delete">Șterge</string>
+    <string name="add_hive">Adaugă stup</string>
+    <string name="no_hives_yet">Niciun stup încă</string>
+    <string name="notes">Note (opțional)</string>
+    <string name="update_hive">Actualizează stup</string>
+    <string name="save_hive">Salvează stup</string>
+    <string name="apiary_name">Numele stupinei</string>
+    <string name="location">Locație</string>
+    <string name="description">Descriere</string>
+    <string name="cancel">Anulează</string>
+    <string name="save">Salvează</string>
+    <string name="no_apiary">Nicio stupină încă</string>
+    <string name="add_apiary">Adaugă stupină</string>
+    <string name="edit_apiary">Editează stupina</string>
+    <string name="apiary_updated">Stupina a fost actualizată</string>
+    <string name="delete_apiary_title">Șterge stupina</string>
+    <string name="delete_apiary_message">Sigur vrei să ștergi \"%1$s\"? Toți stupii din această stupină vor fi șterși.</string>
+    <string name="confirm_delete">Șterge</string>
+    <string name="apiary_deleted">Stupina a fost ștearsă</string>
+    <string name="error_loading_apiary">Eroare la încărcarea stupinei</string>
+    <string name="edit_hive">Editează stupul</string>
+    <string name="hive_updated">Stupul a fost actualizat</string>
+    <string name="delete_hive_title">Șterge stupul</string>
+    <string name="delete_hive_message">Sigur vrei să ștergi stupul \"%1$s\"?</string>
+    <string name="hive_deleted">Stupul a fost șters</string>
+    <string name="error_loading_hive">Eroare la încărcarea stupului</string>
+
+    <!-- Validation -->
+    <string name="field_required">Acest câmp este obligatoriu</string>
+    <string name="name_too_short">Numele este prea scurt (minim 2 caractere)</string>
+    <string name="name_too_long">Numele este prea lung (maxim 100 caractere)</string>
+
+    <!-- Hive Types -->
+    <string name="hive_type_langstroth">Stup vertical modular - Langstroth</string>
+    <string name="hive_type_dadant">Stup vertical cu rame mari - Dadant</string>
+    <string name="hive_type_topbar">Stup orizontal cu bare - Top-Bar</string>
+    <string name="hive_type_warre">Stup vertical natural - Warré</string>
+    <string name="hive_type_other">Alt tip de stup</string>
+
+    <!-- Hive Status -->
+    <string name="hive_status_active">Activ</string>
+    <string name="hive_status_queenless">Fără regină</string>
+    <string name="hive_status_weak">Slab</string>
+    <string name="hive_status_sick">Bolnav</string>
+    <string name="hive_status_preparing">În pregătire</string>
+    <string name="hive_status_inactive">Inactiv</string>
+
+    <!-- Apiary strings -->
+    <string name="no_hives">Niciun stup</string>
+    <string name="one_hive">1 stup</string>
+    <string name="multiple_hives">%d stupi</string>
+    <string name="no_location">Fără locație</string>
+
+    <!-- Task Priorities -->
+    <string name="priority_low">Prioritate scăzută</string>
+    <string name="priority_normal">Prioritate normală</string>
+    <string name="priority_high">Prioritate înaltă</string>
+    <string name="priority_critical">Prioritate critică</string>
+
+    <!-- Task Status -->
+    <string name="status_pending">În așteptare</string>
+    <string name="status_in_progress">În progres</string>
+    <string name="status_completed">Finalizat</string>
+    <string name="status_cancelled">Anulat</string>
+
+    <!-- Task Actions -->
+    <string name="create_task">Creează task</string>
+    <string name="edit_task">Editează task-ul</string>
+    <string name="delete_task">Șterge task-ul</string>
+    <string name="complete_task">Marchează ca finalizat</string>
+    <string name="task_created">Task-ul a fost creat</string>
+    <string name="task_updated">Task-ul a fost actualizat</string>
+    <string name="task_deleted">Task-ul a fost șters</string>
+    <string name="task_completed">Task-ul a fost finalizat</string>
+
+    <!-- Task List -->
+    <string name="all_tasks">Toate task-urile</string>
+    <string name="pending_tasks">Task-uri în așteptare</string>
+    <string name="overdue_tasks">Task-uri întârziate</string>
+    <string name="completed_tasks">Task-uri finalizate</string>
+    <string name="no_tasks">Niciun task</string>
+
+    <!-- Task Details -->
+    <string name="task_title">Titlu task</string>
+    <string name="task_description">Descriere</string>
+    <string name="task_priority">Prioritate</string>
+    <string name="task_due_date">Termen limită</string>
+    <string name="task_location">Locație</string>
+    <string name="general_task">Task general</string>
+    <string name="add_task">Adaugă task</string>
+
+    <!-- Forgot Password -->
+    <string name="forgot_password_title">Ai uitat parola?</string>
+    <string name="forgot_password_subtitle">Introdu adresa de email pentru a primi link de resetare</string>
+    <string name="send_reset_link">Trimite link de resetare</string>
+    <string name="back_to_login">Îți amintești parola? Autentifică-te</string>
+
+    <!-- Reset Password -->
+    <string name="reset_password_title">Resetează parola</string>
+    <string name="reset_password_subtitle">Introdu noua ta parolă</string>
+    <string name="new_password_hint">Parolă nouă</string>
+    <string name="confirm_password_hint">Confirmă parola</string>
+    <string name="reset_password_button">Resetează parola</string>
+    <string name="passwords_dont_match">Parolele nu corespund</string>
+    <string name="confirm_password_empty">Confirmă parola</string>
+
+    <!-- Email Confirmation -->
+    <string name="email_not_confirmed">Email neconfirmat</string>
+    <string name="email_not_confirmed_message">Contul tău nu a fost confirmat încă. Verifică email-ul sau retrimite linkul de confirmare.</string>
+    <string name="resend_confirmation">Retrimite email</string>
+    <string name="confirmation_sent">Email de confirmare trimis! Verifică inbox-ul.</string>
+    <string name="email_confirmed_success">Email confirmat cu succes!</string>
+
+    <!-- Profile -->
+    <string name="success_password_reset">Parola a fost resetată cu succes!</string>
+    <string name="success_reset_email_sent">Email de resetare trimis! Verifică inbox-ul.</string>
+    <string name="edit_profile">Editează profilul</string>
+    <string name="my_profile">Profilul meu</string>
+    <string name="email">Email</string>
+    <string name="varified_email">✓ Email verificat</string>
+    <string name="first_name">Prenume</string>
+    <string name="last_name">Nume</string>
+    <string name="phone">Telefon</string>
+    <string name="birth_date">Data nașterii</string>
+
+    <!-- Inspection Related -->
+    <string name="inspections">Inspecții</string>
+    <string name="all_inspections">Toate inspecțiile</string>
+    <string name="hive_inspections">Inspecții %1$s</string>
+    <string name="apiary_inspections">Inspecții %1$s</string>
+    <string name="edit_inspection">Editează inspecția</string>
+    <string name="save_inspection">Salvează inspecția</string>
+    <string name="delete_inspection">Șterge inspecția</string>
+    <string name="delete_inspection_confirmation">Ești sigur că vrei să ștergi inspecția pentru %1$s?</string>
+    <string name="no_inspections">Nicio inspecție</string>
+    <string name="add_first_inspection">Adaugă prima ta inspecție pentru a urmări progresul stupilor</string>
+
+    <!-- Inspection Details -->
+    <string name="inspection_icon">Iconiță inspecție</string>
+    <string name="inspection_date_time">Data și ora inspecției</string>
+    <string name="temperature">Temperatură</string>
+    <string name="temperature_celsius">Temperatură (°C)</string>
+    <string name="frames">Rame</string>
+    <string name="frames_info">Informații rame</string>
+    <string name="total_frames">Total rame</string>
+    <string name="brood_frames">Rame cu puiet</string>
+    <string name="honey_frames">Rame cu miere</string>
+    <string name="pollen_frames">Rame cu polen</string>
+    <string name="photos">Fotografii</string>
+
+    <!-- Observations -->
+    <string name="observations">Observații</string>
+    <string name="queen">Regină</string>
+    <string name="queen_seen">Regină văzută</string>
+    <string name="eggs">Ouă</string>
+    <string name="eggs_seen">Ouă văzute</string>
+    <string name="larvae">Larve</string>
+    <string name="larvae_seen">Larve văzute</string>
+
+    <!-- Hive Selection -->
+    <string name="select_hive">Selectează stupul</string>
+    <string name="hive">Stup</string>
+    <string name="date">Data</string>
+    <string name="view_inspections">Vezi inspecții</string>
+
+    <!-- Plurals -->
+    <plurals name="inspection_count">
+        <item quantity="one">%d inspecție înregistrată</item>
+        <item quantity="few">%d inspecții înregistrate</item>
+        <item quantity="other">%d de inspecții înregistrate</item>
+    </plurals>
+
+    <string name="inspection_details">Detalii inspecție</string>
+    <string name="measurements">Măsurători</string>
+
+    <!-- Photos -->
+    <string name="add_photo">Adaugă fotografie</string>
+    <string name="inspection_photo">Fotografie inspecție</string>
+    <string name="no_photos_yet">Nu există fotografii încă</string>
+    <string name="take_photo">Fă fotografie</string>
+    <string name="choose_from_gallery">Alege din galerie</string>
+    <string name="photo_source">Sursa fotografiei</string>
+    <string name="delete_photo">Șterge fotografia</string>
+    <string name="delete_photo_confirmation">Ești sigur că vrei să ștergi această fotografie?</string>
+
+    <!-- Photo Upload -->
+    <string name="uploading">Se încarcă…</string>
+    <string name="upload_failed">Încărcare eșuată</string>
+    <string name="photo_uploaded">Fotografie încărcată</string>
+    <string name="photo_deleted">Fotografie ștearsă</string>
+
+    <!-- Description -->
+    <string name="add_description">Adaugă descriere</string>
+    <string name="edit_description">Editează descriere</string>
+    <string name="description_optional">Descriere (opțional)</string>
+    <string name="upload_now">Încarcă acum</string>
+    <string name="upload_later">Mai târziu</string>
+    <string name="no_description">Fără descriere</string>
+
+    <!-- Permissions -->
+    <string name="camera_permission_required">Permisiune cameră necesară</string>
+    <string name="camera_permission_explanation">Aplicația are nevoie de acces la cameră pentru a face fotografii ale inspecțiilor.</string>
+    <string name="storage_permission_required">Permisiune stocare necesară</string>
+    <string name="storage_permission_explanation">Aplicația are nevoie de acces la galerie pentru a alege fotografii.</string>
+
+    <!-- Errors -->
+    <string name="photo_too_large">Fotografia este prea mare (max 2MB)</string>
+    <string name="photo_processing_error">Eroare la procesarea fotografiei</string>
+    <string name="photo_upload_error">Eroare la încărcarea fotografiei</string>
+    <string name="no_photos">Fără fotografii</string>
+
+    <!-- Login Screen (added during string extraction; exact UI text preserved) -->
+    <string name="login_welcome">Bine ai revenit!</string>
+    <string name="login_email_placeholder">exemplu@email.com</string>
+    <string name="login_password_placeholder">Parola ta</string>
+    <string name="login_no_account">Nu ai cont?</string>
+    <string name="login_offline_message">Fără conexiune la server. Verifică internetul pentru a te autentifica.</string>
+    <string name="login_email_not_confirmed_message">Contul tău nu a fost confirmat încă. Verifică email-ul sau retrimite linkul de confirmare.</string>
+    <string name="login_logo_content_description">Sigla BeeSmart</string>
+    <string name="show_password">Arată parola</string>
+    <string name="hide_password">Ascunde parola</string>
+
+    <!-- Forgot Password Screen -->
+    <string name="forgot_subtitle">Introdu adresa ta de email și îți vom trimite un link pentru resetarea parolei.</string>
+    <string name="forgot_send_button">Trimite link de resetare</string>
+    <string name="forgot_back_to_login">Înapoi la autentificare</string>
+    <string name="forgot_tip_title">💡 Sfat</string>
+    <string name="forgot_tip_message">Dacă nu primești emailul în câteva minute, verifică și folderul de spam.</string>
+
+    <!-- Reset Password Screen -->
+    <string name="reset_title">Resetare Parolă</string>
+    <string name="reset_subtitle">Introdu noua ta parolă</string>
+    <string name="reset_new_password_label">Parolă nouă</string>
+    <string name="reset_confirm_password_label">Confirmă parola</string>
+    <string name="reset_repeat_password">Repetă parola</string>
+    <string name="reset_button">Resetează parola</string>
+    <string name="reset_requirements_title">Cerințe parolă:</string>
+    <string name="reset_req_min_chars">• Minim 8 caractere</string>
+    <string name="reset_req_match">• Ambele parole trebuie să fie identice</string>
+</resources>

@@ -1,0 +1,358 @@
+\chapter{Proiectarea și implementarea aplicației BeeSmart}
+\label{chap:implementare}
+
+\section{Arhitectura generală a sistemului}
+
+BeeSmart este proiectată ca o aplicație completă, de la client la server. Clientul Android este responsabil pentru interfața utilizatorului, colectarea datelor în teren, stocarea locală și pornirea sincronizării. Backend-ul ASP.NET Core expune API-ul REST, verifică autentificarea și apartenența resurselor, persistă datele în SQL Server și apelează serviciul AI atunci când se cere analiza unei fotografii. Serviciul AI rulează separat și oferă ruta de analiză.
+
+Arhitectura logică a sistemului este rezumată în figura~\ref{fig:arhitectura-generala}.
+
+\begin{figure}[H]
+	\centering
+	\resizebox{0.95\textwidth}{!}{%
+		\begin{tikzpicture}[
+			cmp/.style={draw, rounded corners=5pt, fill=yellow!12,
+				minimum height=1.6cm, text width=3.9cm, align=center, font=\small},
+			dbs/.style={draw, rounded corners=5pt, fill=blue!8,
+				minimum height=1.6cm, text width=3.9cm, align=center, font=\small},
+			ais/.style={draw, rounded corners=5pt, fill=green!10,
+				minimum height=1.6cm, text width=3.9cm, align=center, font=\small},
+			darr/.style={{Latex[length=3mm]}-{Latex[length=3mm]}, thick},
+			lbl/.style={font=\scriptsize, fill=white, inner sep=2pt}
+			]
+			\node[cmp] (android) {\textbf{Aplicație Android}\\Kotlin + Compose\\Room + Retrofit};
+			\node[cmp, right=4.5cm of android] (api) {\textbf{ASP.NET Core 8 API}\\C\# + EF Core\\JWT + Rate Limiting};
+			\node[dbs, right=4.5cm of api] (sql) {\textbf{SQL Server}\\Azure SQL Database\\EF Core Migrations};
+			\node[ais, below=3cm of api] (ai) {\textbf{DeepBee AI Service}\\Python + Flask\\TensorFlow + OpenCV};
+			
+			\draw[darr] (android) -- node[lbl, above] {HTTPS / REST} (api);
+			\draw[darr] (api)     -- node[lbl, above] {EF Core / SQL} (sql);
+			\draw[darr] (api)     -- node[lbl, right] {HTTP / Base64} (ai);
+	\end{tikzpicture}}
+	\caption{Arhitectura generală a sistemului BeeSmart. Aplicația Android comunică cu backend-ul ASP.NET Core prin HTTPS/REST; backend-ul persistă datele în SQL Server prin Entity Framework Core și apelează serviciul AI pentru analiza fotografiilor de rame. Săgețile duble indică comunicare bidirecțională.}
+	\label{fig:arhitectura-generala}
+\end{figure}
+
+Separarea responsabilităților reduce dependențele dintre componente. Aplicația Android nu conține modelul AI și nu trebuie să includă biblioteci grele de procesare a imaginilor. Backend-ul rămâne responsabil pentru validarea cererilor, autentificare și persistență, iar serviciul AI poate fi containerizat și actualizat independent de clientul mobil.
+
+
+
+\section{Structura proiectului}
+
+Proiectul analizat conține trei zone principale: aplicația Android, backend-ul și documentația. Structura este următoarea:
+
+{\footnotesize
+\begin{verbatim}
+BeeSmart/
+  BeeSmart/                   Aplicația Android
+    app/src/main/java/com/example/beesmart/
+      data/local/             Room, DAO-uri, entități
+      data/repository/        Repository-uri offline-first
+      di/                     Module Hilt
+      network/                Retrofit, interceptori
+      notifications/          Notificări locale
+      sync/                   SyncManager/Worker/Scheduler
+      ui/                     Compose, Fragmente, ViewModel
+      utils/                  Sesiune, fotografii, voce
+    gradle/libs.versions.toml Versiuni dependințe
+
+  ApiaryServer/
+    ApiaryServer/
+      Api/Controllers/        Controllere REST
+      Application/            DTO-uri, interfețe, excepții
+      Domain/Entities/        Entități de domeniu
+      Infrastructure/         DbContext, repository-uri
+      AIService/              Serviciu Python (DeepBee)
+      docker-compose.yml      SQL Server + API + AI
+    ApiaryServer.Tests/       Teste backend
+\end{verbatim}
+}
+
+\section{Arhitectura aplicației Android}
+
+Aplicația Android urmează un flux de date clar, prezentat în figura~\ref{fig:flux-date-android}.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    box/.style={draw, rounded corners=4pt, fill=yellow!12,
+                minimum height=1.15cm, text width=3cm, align=center, font=\small},
+    data/.style={draw, rounded corners=4pt, fill=blue!8,
+                 minimum height=1.15cm, text width=3.3cm, align=center, font=\small},
+    queue/.style={draw, rounded corners=4pt, fill=green!10,
+                  minimum height=1.15cm, text width=3cm, align=center, font=\small},
+    fl/.style={-{Latex[length=2.5mm]}, thick},
+    lbl/.style={font=\scriptsize, fill=white, inner sep=2pt}
+]
+    \node[box] (ui) {UI Compose / Fragmente};
+    \node[box, right=1.3cm of ui] (vm) {ViewModel};
+    \node[box, right=1.3cm of vm] (repo) {Repository};
+    \node[data, right=1.3cm of repo] (net) {Retrofit (API) / Room (local)};
+    \node[queue, below=1.5cm of repo] (queue) {SyncQueueEntity};
+
+    \draw[fl] (ui)   -- (vm);
+    \draw[fl] (vm)   -- (repo);
+    \draw[fl] (repo) -- (net);
+    \draw[fl] (repo) -- node[lbl, right] {offline} (queue);
+\end{tikzpicture}}
+\caption{Fluxul de date în aplicația Android: acțiunile din interfața Compose sunt transmise prin ViewModel către repository, care alege între accesul online (Retrofit) și cel local (Room); operațiile efectuate offline sunt înregistrate în \texttt{SyncQueueEntity} pentru sincronizare ulterioară.}
+\label{fig:flux-date-android}
+\end{figure}
+
+Interfața este împărțită pe domenii funcționale: autentificare, acasă, stupine, stupi, inspecții, tratamente, extracții, task-uri, notificări, profil și QR. Fiecare domeniu are propriile ecrane Compose și ViewModel-uri. De exemplu, modulul de inspecții include ecranele \texttt{InspectionListScreen}, \texttt{InspectionFormScreen} și \texttt{InspectionDetailScreen}, împreună cu \texttt{InspectionFormViewModel} și repository-ul \texttt{InspectionRepository}.
+
+\subsubsection*{Pornire, UI și navigare}
+
+La pornire, \texttt{MainActivity} verifică dacă există un deep link activ sau o sesiune autentificată. Dacă utilizatorul nu este autentificat și nu există un deep link de procesat, aplicația afișează mai întâi \texttt{SplashScreen}, un ecran Compose cu animații de prezentare. La finalizarea animației, funcția de continuare declanșează \texttt{runAuthCheck()}, care verifică sesiunea și redirecționează fie spre ecranul principal, fie spre fluxul de autentificare. Această separare a logicii de autentificare în metoda \texttt{runAuthCheck()} permite reutilizarea ei atât din ecranul de pornire, cât și din rutele de deep link, fără duplicare de cod.
+
+Navigarea pornește din \texttt{MainActivity}, care verifică starea autentificării și configurează \texttt{NavController}. \texttt{nav\_graph.xml} definește destinațiile aplicației. Ecranele principale sunt accesibile prin bara de navigație de jos, iar ecranele de creare sau editare sunt ascunse din aceasta pentru a păstra un flux clar.
+
+Aplicația folosește și deep links. În \texttt{AndroidManifest.xml} sunt declarate filtre de intent pentru confirmarea emailului, resetarea parolei și deschiderea fișei unui stup. \texttt{MainActivity} tratează manual parametrii de interogare pentru email și token, deoarece aceste fluxuri trebuie să funcționeze atât prin schema proprie \texttt{beesmart://}, cât și prin adrese HTTPS de forma \texttt{https://app.beesmart.ro/...}.
+
+Sistemul vizual al aplicației este unificat prin componenta \texttt{BeeSmartVisuals}, care definește fundaluri, anteturi de secțiune, panouri de conținut și stări goale reutilizabile în toată interfața. Culorile semantice \texttt{StatusOk}, \texttt{StatusWatch}, \texttt{StatusDanger} și \texttt{StatusInfo} comunică vizual starea unui stup sau a unei operații. Tipografia folosește Plus Jakarta Sans ca font principal și Roboto Mono pentru afișarea valorilor numerice, ambele încărcate prin Google Fonts API.
+
+\subsubsection*{ViewModel-uri și repository-uri}
+
+ViewModel-urile expun stări către UI prin \texttt{StateFlow}. De exemplu, \texttt{HiveDetailViewModel} încarcă detaliile unui stup, ultimele inspecții și analizele AI asociate. \texttt{InspectionFormViewModel} gestionează formularul de inspecție, fotografiile locale, apelul de analiză AI și salvarea rezultatului. Acest model păstrează ecranul Compose concentrat pe afișare și interacțiune, iar logica de date rămâne în ViewModel și repository.
+
+\texttt{UserProfileViewModel} expune două câmpuri care reflectă starea sincronizării: \texttt{pendingSyncCount}, numărul de operații din coada locală care nu au ajuns încă pe server, și \texttt{lastServerSyncMillis}, momentul ultimei sincronizări reale confirmate cu serverul. Aceste valori sunt afișate în \texttt{UserProfileScreen}, astfel încât utilizatorul să poată verifica dacă datele introduse în teren sunt sincronizate. \texttt{SessionManager} primește apeluri \texttt{markServerSyncNow()} din \texttt{SyncManager} și din \texttt{UserProfileRepository} ori de câte ori o sincronizare cu serverul se finalizează cu succes.
+
+Repository-urile constituie punctul de decizie al stratului de date Android. Ele stabilesc dacă o operație se execută online, prin Retrofit, sau offline, prin Room. \texttt{ApiaryRepository}, de exemplu, verifică \texttt{ConnectivityObserver} și \texttt{BackendReachability}. Dacă backend-ul nu este disponibil, creează o entitate locală cu \texttt{PENDING\_CREATE} și introduce un rând în \texttt{SyncQueueEntity}. Dacă backend-ul este disponibil, trimite cererea la server și salvează răspunsul în Room.
+
+Aceeași strategie este folosită pentru stupi, task-uri, tratamente, extracții, inspecții și fotografii. În cazul analizei AI, repository-ul impune conexiune la backend, deoarece modelul rulează în serviciul AI.
+
+\section{Arhitectura backend}
+
+Backend-ul este organizat în patru straturi:
+
+\begin{verbatim}
+Api -> Application -> Domain -> Infrastructure
+\end{verbatim}
+
+Stratul \texttt{Api} conține controllerele HTTP. Stratul \texttt{Application} definește DTO-uri, interfețe, excepții și clase de opțiuni. Stratul \texttt{Domain} conține entitățile de business. Stratul \texttt{Infrastructure} include \texttt{AppDbContext}, repository-urile, serviciile, logica de email, JWT și integrarea cu serviciul AI.
+
+Controllerele sunt declarate în \texttt{Api/Controllers}. \texttt{AuthController} gestionează înregistrarea, autentificarea, reîmprospătarea token-ului, confirmarea emailului, resetarea parolei și profilul. \texttt{ApiaryController}, \texttt{HiveController}, \texttt{InspectionController}, \texttt{TaskController}, \texttt{HiveTreatmentController} și \texttt{HiveExtractionController} expun operațiile CRUD pentru entitățile apicole.
+
+Rutele protejate folosesc atributul \texttt{[Authorize]}. Identitatea utilizatorului este extrasă din \texttt{ClaimTypes.NameIdentifier}. Serviciile verifică apoi dacă resursa aparține utilizatorului curent. Această verificare este necesară deoarece un token valid nu trebuie să permită accesul la stupinele altui utilizator.
+
+Backend-ul aplică o limitare a numărului de cereri, configurată în \texttt{Program.cs} prin \texttt{AddRateLimiter}. Există trei politici distincte. Prima este un limitator global, care restricționează fiecare adresă IP la 120 de cereri pe minut, cu o coadă de așteptare de cel mult 20 de cereri suplimentare. A doua politică, numită \texttt{fixed}, limitează rutele generice la 5 cereri pe minut. A treia, numită \texttt{login}, restricționează ruta de autentificare la 5 încercări pe minut fără coadă de așteptare, pentru a preveni atacurile prin forță brută.
+
+Adresele IP sunt extrase corect și atunci când aplicația rulează în spatele unui proxy sau al Azure Container Apps, deoarece \texttt{UseForwardedHeaders} este configurat cu \texttt{XForwardedFor} și \texttt{XForwardedProto}, cu rețelele cunoscute golite pentru a accepta orice proxy de încredere. Cererile respinse primesc codul HTTP 429.
+
+Serviciile din \texttt{Infrastructure/Services} conțin logica de business. De exemplu, \texttt{InspectionService} verifică dacă stupul există și aparține utilizatorului înainte de a crea o inspecție. La salvarea unei analize AI, același serviciu normalizează clasele întoarse de AI, calculează indicatorii derivați și persistă rezultatul în tabela \texttt{InspectionAiAnalyses}.
+
+Repository-urile din \texttt{Infrastructure/Repositories} izolează accesul la baza de date. Ele folosesc \texttt{AppDbContext} și includ metode pentru interogări pe utilizator, căutări după id, adăugare, actualizare, ștergere și verificări de apartenență. Această separare face ca serviciile să nu depindă direct de detalii EF Core în fiecare metodă.
+
+\section{Modelul bazei de date}
+
+Pe server, baza de date este definită prin \texttt{AppDbContext}. Entitățile principale sunt:
+\begin{itemize}
+	\item \texttt{User}: contul utilizatorului, email, parolă hash-uită, profil, confirmare email;
+	\item \texttt{RefreshToken}, \texttt{EmailConfirmationToken}, \texttt{PasswordResetToken}: token-uri pentru securitate și fluxuri de cont;
+	\item \texttt{Apiary}: stupină asociată unui utilizator, cu nume, descriere și locație;
+	\item \texttt{Hive}: stup asociat unei stupine, cu tip, status, note, date despre matcă și rame;
+	\item \texttt{Inspection}: inspecție asociată unui stup și unei stupine;
+	\item \texttt{InspectionPhoto}: fotografie atașată unei inspecții;
+	\item \texttt{InspectionAiAnalysis}: rezultatul salvat al unei analize DeepBee;
+	\item \texttt{HiveTreatment}: tratament aplicat unui stup;
+	\item \texttt{HiveExtraction}: extracție de miere, polen, propolis, ceară sau alt produs;
+	\item \texttt{HiveTask}: sarcină asociată unui utilizator, opțional unei stupine sau unui stup.
+\end{itemize}
+
+Relațiile sunt configurate explicit. Un utilizator deține stupine, o stupină conține stupi, un stup conține inspecții, tratamente și extracții. O inspecție poate avea fotografii și analize AI. Pentru task-uri, relațiile cu stupina și stupul folosesc \texttt{DeleteBehavior.NoAction}, pentru a evita conflictele de cascade în SQL Server. Modelul entităților principale și relațiile dintre ele sunt prezentate în figura~\ref{fig:er-diagram}.
+
+Local, Room are un model asemănător, dar adaptat sincronizării. Entitățile locale includ câmpuri precum \texttt{localId}, \texttt{serverId}, \texttt{syncStatus} și \texttt{updatedAt}. În plus, există \texttt{SyncQueueEntity}, care nu există pe server, deoarece reprezintă mecanismul clientului pentru memorarea operațiilor offline.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    entity/.style={draw, rounded corners=2pt, fill=gray!6,
+                rectangle split, rectangle split parts=2,
+                rectangle split draw splits=true,
+                text width=3.6cm, align=left, font=\scriptsize,
+                inner sep=3pt},
+    title/.style={font=\scriptsize\bfseries},
+    arr/.style={-{Latex[length=2.6mm]}, thick},
+    one/.style={font=\scriptsize, fill=white, inner sep=1.5pt},
+    many/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+    \node[entity] (user) at (0,0)
+        {\nodepart[title]{one}User
+         \nodepart{two}\underline{PK Id}\\ Email\\ PasswordHash\\ EmailConfirmed};
+
+    \node[entity] (apiary) at (-7.2,-4.6)
+        {\nodepart[title]{one}Apiary
+         \nodepart{two}\underline{PK Id}\\ FK UserId\\ Name\\ Location};
+
+    \node[entity] (task) at (7.2,-4.6)
+        {\nodepart[title]{one}HiveTask
+         \nodepart{two}\underline{PK Id}\\ FK UserId\\ FK ApiaryId [0..1]\\ FK HiveId [0..1]\\ Title, Priority\\ Status, DueDate};
+
+    \node[entity] (hive) at (-7.2,-10.4)
+        {\nodepart[title]{one}Hive
+         \nodepart{two}\underline{PK Id}\\ FK ApiaryId\\ Name, Type, Status\\ ReginaPrezenta\\ RamePuiet, RameMiere};
+
+    \node[entity] (inspection) at (2.6,-11.0)
+        {\nodepart[title]{one}Inspection
+         \nodepart{two}\underline{PK Id}\\ FK HiveId\\ InspectionDate\\ Temperature\\ BroodFrames\\ QueenSeen, EggsSeen};
+
+    \node[entity] (treatment) at (-9.6,-16.4)
+        {\nodepart[title]{one}HiveTreatment
+         \nodepart{two}\underline{PK Id}\\ FK HiveId\\ Type, ProductName\\ TreatmentDate\\ NextTreatmentDate};
+
+    \node[entity] (extraction) at (-4.6,-17.2)
+        {\nodepart[title]{one}HiveExtraction
+         \nodepart{two}\underline{PK Id}\\ FK HiveId\\ Type, Quantity\\ Unit, ExtractionDate};
+
+    \node[entity] (photo) at (2.6,-17.6)
+        {\nodepart[title]{one}InspectionPhoto
+         \nodepart{two}\underline{PK Id}\\ FK InspectionId\\ PhotoUrl\\ Description};
+
+    \node[entity] (aianalysis) at (7.8,-18.0)
+        {\nodepart[title]{one}InspectionAiAnalysis
+         \nodepart{two}\underline{PK Id}\\ FK InspectionId\\ Status, TotalCells\\ BroodCells, StoresCells\\ BroodDensity};
+
+    \draw[arr] (user.west)    to[out=180,in=90]  node[one,pos=0.15]{1} node[many,pos=0.9]{*} (apiary.north);
+    \draw[arr] (user.east)    to[out=0,in=90]    node[one,pos=0.15]{1} node[many,pos=0.9]{*} (task.north);
+    \draw[arr] (apiary.south) -- node[one,pos=0.12]{1} node[many,pos=0.88]{*} (hive.north);
+    \draw[arr] (hive.east)    -- node[one,pos=0.1]{1} node[many,pos=0.9]{*} (inspection.west);
+    \draw[arr] (hive.south)   -- node[one,pos=0.15]{1} node[many,pos=0.85]{*} (treatment.north);
+    \draw[arr] (hive.south)   to[out=-70,in=110] node[one,pos=0.12]{1} node[many,pos=0.9]{*} (extraction.north);
+    \draw[arr] (inspection.south) -- node[one,pos=0.15]{1} node[many,pos=0.85]{*} (photo.north);
+    \draw[arr] (inspection.south east) to[out=-50,in=90] node[one,pos=0.15]{1} node[many,pos=0.9]{*} (aianalysis.north);
+\end{tikzpicture}}
+\caption{Diagrama entităților principale ale bazei de date BeeSmart, cu atributele-cheie și marcajele de cheie primară (\underline{PK}) și cheie externă (FK). Relațiile sunt de tip unu-la-mulți (\enquote{1} la părinte, \enquote{*} la copil). Entitatea \texttt{HiveTask} poate referenția opțional o stupină sau un stup, marcaj redat prin \texttt{[0..1]} pe câmpurile \texttt{ApiaryId} și \texttt{HiveId}.}
+\label{fig:er-diagram}
+\end{figure}
+
+\section{Mecanismul offline-first}
+
+În BeeSmart, strategia offline-first reprezintă mecanismul prin care aplicația rămâne utilizabilă în stupină, chiar și atunci când conexiunea la internet lipsește sau este instabilă. Spre deosebire de un flux exclusiv online, în care o cerere de creare depinde imediat de răspunsul serverului, repository-ul verifică mai întâi accesibilitatea backend-ului. Dacă acesta nu poate fi contactat, datele sunt persistate în Room, iar operația este înregistrată în coada de sincronizare pentru transmiterea ulterioară.
+
+\subsubsection*{Creare, actualizare și ștergere offline}
+
+La crearea offline a unei stupine, \texttt{ApiaryRepository} generează un UUID local, creează un \texttt{ApiaryEntity} cu \texttt{serverId = null} și \texttt{syncStatus = PENDING\_CREATE}, apoi adaugă în \texttt{sync\_queue} o operație de tip \texttt{CREATE}. UI-ul primește imediat un răspuns de succes, deoarece operația a fost salvată local. Utilizatorul poate continua munca fără să aștepte serverul.
+
+Pentru entitățile copil, cum ar fi stupii sau inspecțiile, localId-ul părintelui este păstrat până când serverul returnează un id real. \texttt{SyncManager} rezolvă ulterior acest id. Dacă stupul depinde de o stupină care încă nu s-a sincronizat, operația este amânată, nu eșuată.
+
+Actualizările offline sunt salvate local cu \texttt{PENDING\_UPDATE}, iar conținutul cererii este păstrat în coadă. Ștergerile offline sunt tratate diferit în funcție de existența unui \texttt{serverId}. Dacă entitatea nu a fost sincronizată niciodată, ea poate fi ștearsă local și operația de creare din coadă este eliminată. Dacă entitatea există deja pe server, este marcată \texttt{PENDING\_DELETE}, iar coada va trimite o cerere DELETE când conexiunea revine.
+
+\subsubsection*{Procesarea cozii}
+
+\texttt{SyncManager.processQueue()} citește toate operațiile și le grupează după tip. Creările sunt procesate în ordine de dependență: mai întâi stupinele, apoi stupii, apoi task-urile, tratamentele, extracțiile, inspecțiile și fotografiile. Actualizările, ștergerile și acțiunile de completare/decompletare a task-urilor sunt procesate ulterior. Această ordine este verificată de testele de integrare.
+
+La sincronizarea actualizărilor și ștergerilor de fotografii, \texttt{SyncManager} rezolvă mai întâi id-ul de server al fotografiei folosind o nouă interogare DAO \texttt{getLatestQueuedOperationForEntity()}, care returnează ultima operație înregistrată în coadă pentru o entitate dată. Acest mecanism previne situațiile în care o actualizare de fotografie este trimisă cu un id local, invalid din perspectiva serverului.
+
+Erorile sunt tratate diferit. Dacă apare o eroare de rețea de tip \texttt{IOException}, operația rămâne în coadă fără creșterea numărului de reîncercări. Dacă serverul răspunde cu o eroare HTTP, numărul de reîncercări crește. La 3 încercări, entitatea este marcată \texttt{SYNC\_FAILED}. Această politică evită consumarea reîncercărilor pentru probleme temporare de conectivitate.
+
+\section{Fluxul AI}
+
+Fluxul AI pornește în ecranul de inspecție. Utilizatorul adaugă o fotografie, iar \texttt{InspectionFormViewModel} o transformă în Base64 prin \texttt{PhotoManager}. Cererea este trimisă la ruta Android Retrofit \texttt{POST inspections/analyze-cells}. Backend-ul primește \texttt{AnalyzeCellsRequest}, validează faptul că imaginea este Base64 valid și apelează \texttt{AiAnalysisService}.
+
+\texttt{AiAnalysisService} trimite conținutul cererii către serviciul Python, la ruta configurată \texttt{/analyze}. Serviciul AI decodează imaginea, verifică parametrii de calitate, detectează celulele și clasifică regiunile. Răspunsul se întoarce la backend și apoi la aplicația Android.
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[
+		anode/.style={draw, rounded corners=4pt, fill=yellow!14,
+			minimum width=10.5cm, minimum height=0.9cm, align=center, font=\small},
+		bnode/.style={draw, rounded corners=4pt, fill=blue!8,
+			minimum width=10.5cm, minimum height=0.9cm, align=center, font=\small},
+		cnode/.style={draw, rounded corners=4pt, fill=green!10,
+			minimum width=10.5cm, minimum height=0.9cm, align=center, font=\small},
+		arr/.style={-{Latex[length=2.5mm]}, thick}
+		]
+		\node[anode] (s1) {Captură fotografie + codare Base64};
+		\node[anode, below=0.35cm of s1] (s2) {POST /inspections/analyze-cells (Android $\rightarrow$ API)};
+		\node[bnode, below=0.35cm of s2] (s3) {Validare cerere: autentificare + format Base64 (API)};
+		\node[bnode, below=0.35cm of s3] (s4) {POST /analyze: trimitere imagine (API $\rightarrow$ AI Service)};
+		\node[cnode, below=0.35cm of s4] (s5) {Detecție celule: extracție canal roșu + Hough Circle Transform};
+		\node[cnode, below=0.35cm of s5] (s6) {Clasificare CNN: șapte clase de celule (crop 224×224 / celulă)};
+		\node[bnode, below=0.35cm of s6] (s7) {Calcul indicatori derivați + salvare în SQL Server (API)};
+		\node[anode, below=0.35cm of s7] (s8) {Returnare InspectionAiAnalysis (API $\rightarrow$ Android)};
+		\node[anode, below=0.35cm of s8] (s9) {BroodAnalyzer: raport local + index de stare (Android)};
+		
+		\foreach \s/\t in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6, s6/s7, s7/s8, s8/s9}
+		\draw[arr] (\s) -- (\t);
+	\end{tikzpicture}
+	\caption{Fluxul complet al analizei AI în BeeSmart. Pașii \textit{galben} rulează pe Android, pașii \textit{albastru} pe backend-ul ASP.NET Core, iar pașii \textit{verde} pe serviciul Python DeepBee.}
+	\label{fig:flux-ai}
+\end{figure}
+
+După ce analiza este primită, \texttt{InspectionFormViewModel} folosește \texttt{BroodAnalyzer} pentru a construi un raport local: total celule, categorii, evidențieri, probleme posibile și recomandări. Dacă inspecția este deja salvată, analiza este persistată imediat local și se încearcă salvarea pe server. Dacă inspecția este nouă, analiza este păstrată temporar și se salvează după ce inspecția primește id-ul corespunzător. Traseul complet, de la captarea fotografiei până la salvarea rezultatului, este prezentat în figura~\ref{fig:flux-ai}.
+
+
+
+\section{Statistici și index de stare pe stup}
+
+Rezultatele AI nu sunt afișate doar ca un dicționar brut. Backend-ul salvează indicatori precum \texttt{TotalCells}, \texttt{BroodCells}, \texttt{StoresCells}, \texttt{BroodDensity}, \texttt{LarvaeToCappedRatio} și \texttt{StoresRatio}. Pe Android, \texttt{HiveStatsScreen} folosește aceste valori pentru a afișa:
+\begin{itemize}
+	\item numărul de celule analizate;
+	\item indexul curent;
+	\item numărul de celule de puiet și rezerve;
+	\item tendința față de analiza anterioară;
+	\item evoluția lunară pe anul curent;
+	\item comparația inter-anuală pentru aceeași lună;
+	\item distribuția celulelor și interpretări apicole.
+\end{itemize}
+
+Indexul compozit folosit în UI este calculat din densitatea puietului și rezerve, cu penalizare când raportul larve/puiet căpăcit este foarte scăzut. Textul din interfață precizează că valorile sunt suport decizional, nu diagnostic veterinar. Această formulare este importantă pentru responsabilitatea aplicației.
+
+\section{Indicatori de stupină și consilier contextual}
+
+Pe lângă statisticile individuale ale stupilor, aplicația calculează un set de indicatori agregați la nivelul întregii stupine, afișați pe ecranul principal (\texttt{HomeScreen}). Aceste calcule sunt realizate de trei clase distincte din pachetul \texttt{data/repository}: \texttt{ApiaryIntelligenceCalculator}, \texttt{DashboardAnalyticsCalculator} și \texttt{DeepBeeContextAdvisor}. Calculele sunt efectuate local, pe baza datelor deja disponibile în Room, fără a necesita apeluri suplimentare la server. \texttt{HomeRepository} prelucrează instantaneele de analiză AI stocate prin Moshi și le pune la dispoziția calculatoarelor ca obiecte \texttt{AiHiveSnapshot}.
+
+\subsubsection*{Indexul de risc per stup}
+
+\texttt{ApiaryIntelligenceCalculator} produce un obiect \texttt{ApiaryRadar} care conține scorul mediu de sănătate al stupinei, numărul de stupi monitorizați, distribuția acestora în categoriile \texttt{STABLE}, \texttt{WATCH} și \texttt{CRITICAL}, procentul de acoperire cu inspecții și numărul de stupi cu cel puțin o analiză DeepBee salvată.
+
+Evaluarea fiecărui stup se bazează pe un sistem de penalizări cu puncte. Statusul stupului (bolnav, orfan, slab) adaugă cel mai mare număr de puncte de risc. Absența confirmării reginei, lipsa puietului raportat, vechimea mătcii peste doi ani, inspecțiile întârziate, task-urile critice deschise și semnalele AI de avertizare adaugă penalizări suplimentare. Dacă notăm cu $p_i$ penalizarea asociată fiecărui factor de risc $i$ dintr-o mulțime $F$, scorul de sănătate al stupului este definit ca
+\begin{equation}
+	H = \operatorname{clamp}_{[0,100]}\!\left(100 - \sum_{i \in F} p_i\right),
+	\qquad
+	\operatorname{clamp}_{[0,100]}(x) = \min\bigl(100, \max(0, x)\bigr).
+	\label{eq:scor-sanatate}
+\end{equation}
+Clasificarea stupului este apoi
+\begin{equation}
+	\text{categorie}(H) =
+	\begin{cases}
+		\texttt{CRITICAL}, & H < 50,\\
+		\texttt{WATCH},    & 50 \le H \le 80,\\
+		\texttt{STABLE},   & H > 80.
+	\end{cases}
+	\label{eq:categorie-stup}
+\end{equation}
+Operatorul de saturare din relația \eqref{eq:scor-sanatate} garantează că scorul rămâne în intervalul $[0, 100]$ chiar și atunci când suma penalizărilor depășește 100. Fiecare penalizare $p_i$ generează un mesaj de motiv și o acțiune recomandată, afișate în ordinea priorităților.
+
+\subsubsection*{Producție, prognoză și consilier contextual}
+
+\texttt{DashboardAnalyticsCalculator} este punctul de intrare care orchestrează celelalte două calculatoare și returnează un obiect \texttt{DashboardStats} complet. Pe lângă apelarea \texttt{ApiaryIntelligenceCalculator} și \texttt{DeepBeeContextAdvisor}, calculează analiza de producție (\texttt{HoneyAnalytics}).
+
+Producția de miere extrasă este agregată din înregistrările de extracții de tip \texttt{Honey}. Aplicația normalizează unitățile (kg și g), ignoră intrările cu cantitate negativă sau nenumerică și calculează producția lunară din ultimele șase luni. Prognoza pentru recolta următoare este estimată din capacitatea teoretică a ramelor cu miere ale stupilor activi, ținând cont de tipul stupului: pentru stupii Dadant se folosește o capacitate de 3,6 kg per ramă pe deplin căpăcită, iar pentru celelalte tipuri 2,3 kg. Prognoza este exprimată ca interval minim--mediu--maxim, iar nivelul de încredere al estimării depinde de numărul de înregistrări istorice și de stupii cu rame cu miere declarate.
+
+\texttt{DeepBeeContextAdvisor} produce un \texttt{ApiaryAdviceDigest} care conține sfaturi prioritizate pe patru niveluri: \texttt{URGENT}, \texttt{IMPORTANT}, \texttt{WATCH} și \texttt{OPPORTUNITY}. Fiecare sfat (\texttt{BeekeeperAdvice}) include un titlu, o explicație, o acțiune propusă, o listă de dovezi extrase din date și un indicator opțional de recomandare pentru evaluare de specialitate. Sfaturile sunt generate per stup și sortate global după prioritate.
+
+Logica consilierului combină mai multe surse de date: starea mătcii (din câmpurile stupului, din inspecție și din analiza AI), semnalele de roire (botci cu ouă, barbă la urdiniș, presiunea de spațiu calculată atât din numărul de rame, cât și din raportul AI al celulelor goale), tendința puietului, rezervele de hrană, tratamentele Varroa înregistrate, termenele expirate de tratament, task-urile critice sau întârziate și calendarul sezonier. Sfaturile sezoniere (primăvară, vară, toamnă, iarnă) sunt omise dacă există deja un task cu titlu corespunzător, pentru a evita duplicarea.
+
+Un aspect esențial al proiectării este că consilierul nu emite diagnostice veterinare și nu prescrie tratamente. Fiecare sfat conține explicit dovezile pe care se bazează, astfel încât utilizatorul să poată valida concluzia din teren înainte de a acționa. Această delimitare este menținută atât în cod, cât și în textele afișate în interfață.
+
+\section{Autentificare, email și deep links}
+
+Fluxul de autentificare este realizat prin \texttt{ComposeAuthActivity} și ecranele de autentificare, înregistrare, recuperare a parolei și resetare a parolei. Backend-ul oferă rute pentru înregistrare, autentificare, reîmprospătarea token-ului, confirmarea emailului și resetarea parolei. Email-urile folosesc configurarea SMTP din \texttt{appsettings.json}, iar adresele pot folosi schema proprie \texttt{beesmart://} sau domeniul web \texttt{https://app.beesmart.ro}.
+
+Deep link-urile sunt folosite și pentru QR. \texttt{QrCodeUtils} generează un cod QR cu adresa către stup, iar \texttt{QrScannerScreen} scanează codul cu CameraX și ML Kit. Dacă adresa este validă, aplicația extrage id-ul stupului și navighează către ecranul de editare. Acest mecanism este util în stupină: fiecare stup poate avea o etichetă fizică, iar apicultorul poate deschide direct datele lui.
+
+\section{Notificări locale}
+
+\subsubsection*{Notificări pentru task-uri și tratamente}
+
+Task-urile permit planificarea activităților legate de o stupină sau de un stup. Ele au titlu, descriere, prioritate, status, termen limită și, opțional, moment de finalizare. Pe Android, notificările locale pentru task-uri sunt gestionate prin \texttt{TaskNotificationScheduler}, care folosește \texttt{AlarmManager}. Pentru fiecare task cu termen limită se pot programa notificări în ziua precedentă și în ziua termenului.
+
+Tratamentele cu termen de reaplicare pot declanșa notificări locale independente. \texttt{Treatment\-Notification\-Scheduler} primește id-ul tratamentului, numele produsului și data de reaplicare, calculează marcajul temporal corespunzător orei 08:00 a zilei respective și programează o alarmă prin \texttt{Alarm\-Manager.\-setExact\-And\-Allow\-While\-Idle()}, care funcționează chiar și atunci când dispozitivul se află în modul de economisire a energiei. Pe Android 12 și versiunile superioare este verificat mai întâi dacă aplicația are permisiunea de a programa alarme exacte; în absența acesteia, se folosește \texttt{set()}, care nu garantează precizia la minut, dar livrează totuși notificarea.
+
+Notificarea este livrată de \texttt{TreatmentNotificationReceiver}, un \texttt{BroadcastReceiver} care primește datele din Intent și afișează notificarea prin canalul de notificări al aplicației. \texttt{BootCompleteReceiver} reprogramează toate alarmele de tratament după repornirea dispozitivului, deoarece Android șterge alarmele la repornire. Această arhitectură garantează că utilizatorul primește reamintirile chiar dacă dispozitivul a fost oprit și repornit între momentul programării și momentul declanșării notificării.
+
+Istoricul notificărilor este păstrat local în \texttt{NotificationHistoryEntity}, cu titlu, mesaj, tip, entitate asociată, data creării și starea citit/necitit. Această funcție nu este echivalentă cu un sistem de notificări push de la server, ci reprezintă notificări locale pentru organizarea activității utilizatorului.

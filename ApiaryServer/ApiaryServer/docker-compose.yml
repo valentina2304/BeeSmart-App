@@ -1,0 +1,39 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: beesmart-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD must be set in .env}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+  ai-service:
+    build:
+      context: ./AIService
+      dockerfile: Dockerfile
+    container_name: beesmart-ai
+    ports:
+      - "5000:5000"
+
+  apiaryserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beesmart-api
+    env_file:
+      - .env
+    depends_on:
+      - sqlserver
+      - ai-service
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=ApiaryDb;User Id=sa;Password=${DB_PASSWORD:?DB_PASSWORD must be set in .env};TrustServerCertificate=True;Encrypt=False;"
+      AiService__BaseUrl: "http://ai-service:5000"
+    ports:
+      - "0.0.0.0:8080:8080"
+
+volumes:
+  sqlserver-data:

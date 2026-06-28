@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="270"
+                android:startColor="#FFF8E6"
+                android:centerColor="#FFFCF4"
+                android:endColor="#F1F7EA" />
+        </shape>
+    </item>
+
+    <item android:drawable="@drawable/honeycomb_tile" />
+</layer-list>

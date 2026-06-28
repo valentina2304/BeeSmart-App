@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Directory pentru fotografii temporare înainte de upload -->
+    <cache-path name="temp_photos" path="photos/" />
+
+    <!-- Directory pentru fotografii salvate local -->
+    <files-path name="saved_photos" path="photos/" />
+
+    <!-- External storage pentru fotografii -->
+    <external-files-path name="external_photos" path="Pictures/" />
+
+    <!-- QR codes saved in cache for sharing -->
+    <cache-path name="qr_codes" path="qr/" />
+</paths>

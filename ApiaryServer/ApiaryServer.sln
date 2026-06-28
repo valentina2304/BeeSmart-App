@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiaryServer", "ApiaryServer\ApiaryServer.csproj", "{DD1C6933-31C6-4F07-88AC-9629689F13B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiaryServer.Tests", "ApiaryServer.Tests\ApiaryServer.Tests.csproj", "{B0C3DB21-7E88-4BB7-9E0C-64D085BA0D16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD1C6933-31C6-4F07-88AC-9629689F13B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD1C6933-31C6-4F07-88AC-9629689F13B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD1C6933-31C6-4F07-88AC-9629689F13B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD1C6933-31C6-4F07-88AC-9629689F13B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0C3DB21-7E88-4BB7-9E0C-64D085BA0D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0C3DB21-7E88-4BB7-9E0C-64D085BA0D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0C3DB21-7E88-4BB7-9E0C-64D085BA0D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0C3DB21-7E88-4BB7-9E0C-64D085BA0D16}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {451D3788-D922-49CD-A93C-2C97787A04A7}
+	EndGlobalSection
+EndGlobal

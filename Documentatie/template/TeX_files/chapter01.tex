@@ -1,0 +1,97 @@
+\chapter{Introducere}
+\label{chap:introducere}
+
+\section{Contextul general al lucrării}
+
+Apicultura este o activitate în care observația directă, memoria intervențiilor și ritmul sezonier al naturii se întâlnesc într-un mod foarte concret. O familie de albine nu poate fi evaluată numai printr-o valoare numerică izolată, ci printr-un istoric: când a fost verificată matca, ce cantitate de puiet exista la ultima inspecție, ce tratament a fost aplicat, cum au evoluat rezervele de hrană și dacă vremea a permis sau nu zborul albinelor. În practică, aceste informații sunt adesea notate în agende, foi separate, aplicații generale de notițe sau fișiere tabelare. Soluțiile de acest tip pot funcționa pentru un număr mic de stupi, dar devin greu de urmărit atunci când apicultorul gestionează mai multe stupine, perioade diferite de tratament și inspecții repetate pentru fiecare stup.
+
+Lucrarea de față pornește de la această nevoie practică și prezintă proiectarea aplicației BeeSmart, o soluție mobilă pentru management apicol. Aplicația este construită în jurul unui client Android, al unui backend ASP.NET Core, al unei baze de date relaționale (SQL Server în mediul de dezvoltare și Azure SQL Database în varianta publică) și al unui serviciu AI inspirat de modelul DeepBee. Ideea centrală este că utilizatorul trebuie să poată lucra în teren, nu doar într-un mediu ideal de birou. Din acest motiv, BeeSmart este proiectată cu o strategie offline-first: datele introduse fără conexiune la internet sunt salvate local, iar sincronizarea cu serverul este realizată ulterior.
+
+Aplicația BeeSmart include funcționalități pentru administrarea stupinelor și a stupilor, completarea inspecțiilor, înregistrarea tratamentelor, extracțiilor și task-urilor, atașarea fotografiilor, afișarea datelor meteo, scanarea codurilor QR, autentificare și recunoaștere vocală. O componentă distinctivă este integrarea unui serviciu AI pentru analiza fotografiilor de rame. Serviciul clasifică celulele detectate în categorii precum ouă, larve, puiet căpăcit, polen, nectar, miere și alte celule, conform direcției propuse în articolul DeepBee \cite{deepbeeArticle}. Este important de precizat încă de la început că modelul DeepBee nu este prezentat ca o contribuție originală a lucrării. Contribuția BeeSmart constă în integrarea lui într-un flux software complet, util pentru urmărirea stării stupului în timp.
+
+\section{Problema urmărită}
+
+O aplicație apicolă utilă trebuie să răspundă la mai multe dificultăți care apar simultan. Prima dificultate este volumul de informații. Chiar și pentru o stupină mică, apicultorul poate avea de urmărit nume sau coduri de stupi, data fiecărei inspecții, starea mătcii, numărul de rame cu puiet, cantitatea de hrană, tratamentele, observațiile despre boli sau slăbirea familiei, precum și sarcinile viitoare. Dacă aceste date sunt păstrate într-un format neuniform, comparația între inspecții devine dificilă.
+
+A doua dificultate este contextul de lucru. Stupina nu garantează conexiune stabilă la internet. Unele stupine sunt amplasate în zone rurale, în livezi, păduri sau spații agricole unde semnalul mobil poate fi slab. O aplicație care depinde permanent de server riscă să blocheze tocmai momentul în care utilizatorul are nevoie să introducă date. Din acest motiv, offline-first nu este doar o preferință tehnică, ci o condiție funcțională pentru domeniul ales.
+
+A treia dificultate ține de interpretarea informațiilor. Notele scrise de utilizator sunt importante, dar fotografiile de rame pot adăuga un nivel suplimentar de obiectivare. O fotografie poate fi reanalizată, comparată cu alte inspecții și transformată în indicatori cantitativi. Totuși, analiza automată trebuie tratată responsabil. Ea nu înlocuiește experiența apicultorului și nu oferă diagnostic veterinar. În BeeSmart, rezultatele AI sunt folosite ca suport informativ: ele ajută la observarea tendințelor și la structurarea datelor, dar decizia finală rămâne la utilizator.
+
+\section{Scopul lucrării}
+
+Scopul lucrării este proiectarea și documentarea unei aplicații mobile full-stack pentru managementul activității apicole, cu accent pe funcționarea offline, sincronizarea datelor și folosirea analizei automate a fotografiilor de rame. Din punct de vedere tehnic, proiectul urmărește să combine tehnologii mobile moderne, o arhitectură backend separată și un serviciu AI containerizat.
+
+Obiectivele principale sunt următoarele:
+\begin{itemize}
+	\item realizarea unei aplicații Android scrise în Kotlin, cu interfață construită în Jetpack Compose și navigare integrată cu fragmente Android;
+	\item implementarea unui strat local de persistență prin Room, astfel încât datele introduse în teren să nu depindă permanent de conexiunea la internet;
+	\item construirea unui mecanism de sincronizare bazat pe o coadă locală de operații, procesată în ordinea dependențelor dintre entități;
+	\item dezvoltarea unui backend ASP.NET Core 8 care expune API-uri REST, folosește autentificare JWT și persistă datele prin Entity Framework Core în SQL Server;
+	\item integrarea unui serviciu AI de analiză a fotografiilor de rame, inspirat de modelul DeepBee, fără a revendica modelul ca fiind creat de la zero în cadrul proiectului;
+	\item folosirea unor servicii și biblioteci auxiliare potrivite pentru lucru în teren: OpenWeatherMap, CameraX, ML Kit Barcode Scanning, ZXing și recunoaștere vocală Android;
+	\item pregătirea proiectului pentru rulare locală prin Docker Compose și pentru acces la un backend public configurat în Azure Container Apps.
+\end{itemize}
+
+Prin aceste obiective, lucrarea nu urmărește doar prezentarea unei interfețe mobile, ci a unui sistem distribuit: clientul Android, serverul API, baza de date și serviciul AI colaborează pentru a susține fluxuri reale de lucru.
+
+\section{Motivația alegerii temei}
+
+Tema a fost aleasă deoarece apicultura este un domeniu practic în care digitalizarea poate aduce beneficii vizibile, dar în care constrângerile de utilizare sunt mai dure decât în cazul unei aplicații folosite în condiții controlate. Apicultorul lucrează adesea cu echipament de protecție, în spații deschise, în condiții de lumină variabilă și cu timp limitat pentru notare. În acest context, aplicația trebuie să fie rapidă, tolerantă la lipsa internetului și suficient de structurată pentru a nu transforma introducerea datelor într-o sarcină obositoare.
+
+Un alt motiv este caracterul longitudinal al datelor apicole. O inspecție izolată spune relativ puțin; valoarea apare atunci când datele sunt comparate în timp. Dacă o familie are mai puține rame cu puiet față de inspecția anterioară, dacă tratamentele sunt întârziate sau dacă producția extrasă scade, aplicația poate ajuta la observarea acestor schimbări. BeeSmart urmărește tocmai această trecere de la notarea simplă la evidență structurată.
+
+Componenta AI adaugă o motivație suplimentară. În literatura de specialitate, DeepBee propune detectarea și clasificarea automată a celulelor din fagure, folosind procesare de imagini și rețele neuronale convoluționale \cite{deepbeeArticle}. Pentru o aplicație mobilă de management apicol, această direcție este utilă deoarece leagă fotografia de o măsurătoare. În loc ca imaginea să fie doar o anexă vizuală a inspecției, ea poate deveni sursă de indicatori. În același timp, integrarea AI într-un produs complet ridică probleme de arhitectură: unde rulează modelul, cum este transmisă fotografia, cum se gestionează erorile și cum sunt prezentate rezultatele fără a induce utilizatorul în eroare.
+
+\section{Aplicații similare existente}
+
+Există deja soluții digitale pentru management apicol. HiveTracks oferă funcții de organizare a stupinelor, urmărire a inspecțiilor și evidență a activităților apicole \cite{hivetracks}. Apiary Book se prezintă ca o aplicație pentru administrarea stupinelor, cu accent pe înregistrarea inspecțiilor și gestionarea datelor despre familiile de albine \cite{apiaryBook}. BeePlus este o altă soluție orientată către evidența stupilor și a operațiilor efectuate de apicultor \cite{beeplus}.
+
+Aceste aplicații arată că există o nevoie reală pentru instrumente digitale în apicultură. În general, ele acoperă funcții precum inventarierea stupilor, notarea inspecțiilor, urmărirea tratamentelor și organizarea activităților. Totuși, pentru lucrarea de față, comparația nu are rolul de a afirma că BeeSmart înlocuiește complet soluțiile existente. 
+
+Comparația cu aplicațiile existente evidențiază faptul că BeeSmart nu urmărește doar înregistrarea operațiilor apicole, ci combinarea evidenței practice cu o arhitectură tehnică adaptată lucrului în teren. Aplicațiile existente oferă funcții utile pentru organizarea stupilor și a inspecțiilor, însă BeeSmart pune accent pe controlul întregului traseu al datelor: de la introducerea informațiilor pe telefon, la salvarea locală, sincronizarea cu serverul, persistența în baza de date și procesarea fotografiilor printr-un serviciu AI separat.
+
+Această diferențiere este importantă deoarece proiectul nu se limitează la interfața mobilă. Backend-ul, baza de date și serviciul AI sunt părți active ale sistemului, iar aplicația Android este proiectată să funcționeze chiar și atunci când serverul nu este disponibil temporar. Astfel, BeeSmart se poziționează între aplicațiile de evidență apicolă și sistemele software distribuite, având ca obiectiv atât utilitatea pentru utilizatorul final, cât și demonstrarea unei arhitecturi moderne de aplicație full-stack.
+
+În plus, includerea codurilor QR, a recunoașterii vocale și a datelor meteo contribuie la adaptarea aplicației la contextul real de utilizare. Aceste funcții nu sunt doar elemente suplimentare, ci răspund unor situații concrete: identificarea rapidă a stupului, introducerea mai ușoară a datelor în teren și corelarea inspecțiilor cu factorii de mediu.
+
+BeeSmart se diferențiază prin accentul pus pe trei direcții. Prima este funcționarea offline-first, tratată ca mecanism central al aplicației mobile. A doua este integrarea unei analize automate a ramelor în fluxul de inspecție, cu salvarea rezultatelor pentru istoric și statistici. A treia este realizarea unei arhitecturi full-stack controlate în cadrul proiectului: aplicația Android, backend-ul, baza de date și serviciul AI sunt dezvoltate și conectate ca părți ale aceluiași sistem. Această abordare permite explicarea tehnică a întregului traseu al datelor, de la introducerea în teren până la persistența pe server.
+
+\section{Poziționarea aplicației BeeSmart}
+
+BeeSmart este gândită ca o aplicație pentru apicultori care au nevoie de evidență rapidă și structurată, nu ca o platformă științifică de diagnostic. Ea centralizează datele despre stupine, stupi, inspecții, tratamente, extracții și sarcini. În același timp, aplicația încearcă să reducă efortul de utilizare în teren prin coduri QR, recunoaștere vocală și suport offline. Fiecare stup poate fi identificat rapid, iar utilizatorul poate ajunge direct la fișa lui fără să caute manual în liste lungi.
+
+Un element important al poziționării este separarea dintre observație, calcul și interpretare. Observația aparține utilizatorului: el completează formularul, fotografiază rama și validează contextul real. Calculul este realizat de aplicație: datele sunt salvate, sincronizate și transformate în indicatori. Interpretarea rămâne prudentă: sistemul poate sugera tendințe, dar nu poate confirma boli sau stări clinice. Această delimitare este necesară mai ales pentru componenta AI, unde rezultatele pot fi afectate de calitatea fotografiei, lumină, unghi, acoperirea ramei sau diferențe față de setul de date pe care a fost antrenat modelul.
+
+Pentru ca aplicația să poată fi folosită în afara mediului local, am completat arhitectura cu o componentă de deploy în cloud. Backend-ul BeeSmart este găzduit prin Azure Container Apps, o platformă pentru rularea aplicațiilor containerizate, potrivită pentru API-uri și microservicii expuse prin HTTPS și scalate în funcție de trafic \cite{azureContainerAppsDocs}. Pe partea de bază de date, dezvoltarea inițială a folosit SQL Server, configurat printr-o imagine Docker pentru a obține un mediu reproductibil, după care am realizat migrarea către Azure SQL Database, soluția gestionată Microsoft compatibilă cu SQL Server \cite{azureSqlDocs}. Astfel, BeeSmart pornește de la o bază de date SQL Server cunoscută și ajunge la o instanță gestionată în Azure, păstrând același set de migrații Entity Framework Core și aceeași schemă relațională.
+
+\section{Delimitări ale lucrării}
+
+Lucrarea delimitează clar ce este implementat și ce reprezintă direcție de dezvoltare. Modelul DeepBee este integrat, nu creat de la zero. Serviciul AI folosește Flask, OpenCV, TensorFlow 1.14, Keras 2.2.4 și un fișier de model \path{classification.h5}; el primește imagini Base64, verifică criterii de calitate, detectează celule prin Hough Circle Transform și le clasifică.
+
+Analiza AI nu este disponibilă offline: fotografiile pot fi salvate local, dar clasificarea se realizează prin backend și serviciul AI. Această decizie reduce complexitatea clientului mobil și centralizează procesarea într-un serviciu specializat. Backend-ul aplică JWT, refresh tokens, rate limiting și verificări de ownership pentru fiecare resursă. Comunicarea dintre client și server se realizează prin HTTPS, atât în mediul local containerizat, cât și în varianta găzduită prin Azure Container Apps.
+
+\section{Contribuțiile lucrării
+}
+Contribuțiile principale ale lucrării sunt grupate pe trei direcții: funcțională, arhitecturală și experimentală. Din punct de vedere funcțional, lucrarea propune o aplicație mobilă dedicată managementului apicol, care reunește într-un singur sistem evidența stupinelor, stupilor, inspecțiilor, tratamentelor, extracțiilor, task-urilor și fotografiilor de rame. Această centralizare urmărește să reducă fragmentarea informațiilor și să ofere apicultorului o imagine coerentă asupra evoluției fiecărui stup.
+
+Din punct de vedere arhitectural, contribuția cea mai importantă constă în proiectarea unui mecanism offline-first adaptat lucrului în teren. Aplicația permite salvarea locală a operațiilor, păstrarea dependențelor dintre entități și sincronizarea ulterioară cu backend-ul. Această abordare este relevantă pentru domeniul apicol, deoarece stupinele pot fi amplasate în zone în care conexiunea la internet este instabilă sau indisponibilă.
+
+O altă contribuție este integrarea unui serviciu AI într-un flux software complet. Modelul DeepBee nu este revendicat ca fiind realizat de la zero în cadrul lucrării, însă integrarea lui în BeeSmart transformă fotografia de ramă într-o sursă de indicatori care pot fi salvați, consultați și urmăriți în timp. Astfel, componenta AI nu este tratată ca modul izolat, ci ca parte a procesului de inspecție și analiză longitudinală a stupului.
+
+Din punct de vedere experimental, lucrarea include validarea aplicației prin teste automate și prin scenarii manuale de utilizare pe dispozitiv fizic. Testele verifică atât logica aplicației Android, cât și comportamentul backend-ului, inclusiv autentificarea, ownership-ul resurselor, sincronizarea și tratarea răspunsurilor serviciului AI.
+
+\section{Structura lucrării}
+
+Lucrarea este organizată în șase capitole, urmate de bibliografie.
+
+Capitolul \ref{chap:introducere} introduce contextul apicol, problema urmărită, scopul proiectului, motivația alegerii temei, aplicațiile similare și modul în care BeeSmart se diferențiază față de acestea.
+
+Capitolul \ref{chap:tehnologii} prezintă tehnologiile și framework-urile utilizate: Kotlin, Jetpack Compose, Hilt, DataStore, Retrofit, OkHttp, Moshi, Room, WorkManager, CameraX, ML Kit Barcode Scanning, ZXing, ASP.NET Core 8, Entity Framework Core, SQL Server cu migrare către Azure SQL Database, Docker Compose, Azure Container Apps, Flask, OpenCV, TensorFlow și Keras. Pentru fiecare grup de tehnologii este explicat rolul concret în cadrul aplicației.
+
+Capitolul \ref{chap:suport-teoretic} acoperă suportul teoretic: trasabilitatea datelor apicole, sezonalitatea, inspecția ca operație centrală, sisteme offline-first, consistență eventuală, securitate și ownership, modelul DeepBee, detecția prin Hough Circle Transform, rețele neuronale convoluționale, MobileNet, indicatori derivați din analiza AI și responsabilitatea interpretării rezultatelor.
+
+Capitolul \ref{chap:implementare} descrie proiectarea și implementarea: structura clientului Android, sincronizarea offline-first, backend-ul ASP.NET Core, serviciul AI Python, modelul bazei de date și modul în care componentele colaborează.
+
+Capitolul \ref{chap:functionalitati} prezintă descrierea funcțională și validarea: interfața grafică, scenariile principale de utilizare și testele care confirmă comportamentul aplicației.
+
+Capitolul \ref{chap:concluzii} conține concluziile lucrării și perspectivele de dezvoltare ulterioară: funcționalități posibile care nu au făcut obiectul implementării curente, dar care se potrivesc direcției BeeSmart.

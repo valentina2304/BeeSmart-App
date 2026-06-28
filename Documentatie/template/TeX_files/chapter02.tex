@@ -1,0 +1,205 @@
+\chapter{Tehnologii și framework-uri utilizate}
+\label{chap:tehnologii}
+
+\section{Vedere de ansamblu asupra stivei tehnologice}
+
+BeeSmart este o aplicație full-stack, iar alegerea tehnologiilor urmărește separarea responsabilităților între clientul mobil, backend, baza de date și serviciul AI. Clientul Android este responsabil pentru interacțiunea directă cu utilizatorul, salvarea locală și pornirea sincronizării. Backend-ul expune API-uri REST, aplică regulile de securitate și persistă datele pe server. Baza de date SQL Server stochează informațiile centrale, iar serviciul AI procesează fotografiile cu rame.
+
+Această împărțire este importantă deoarece fiecare componentă are cerințe diferite. Aplicația mobilă trebuie să fie reactivă, să funcționeze în teren și să nu piardă date când nu există internet. Serverul trebuie să ofere un contract stabil pentru client, să gestioneze autentificarea și să protejeze datele fiecărui utilizator. Serviciul AI are nevoie de biblioteci specializate pentru procesarea imaginilor și pentru încărcarea modelului de clasificare. În loc ca toate aceste responsabilități să fie amestecate într-o singură aplicație, BeeSmart le separă în module care pot fi dezvoltate, testate și rulate independent.
+
+Stiva tehnologică a aplicației cuprinde următoarele componente principale: Kotlin, Jetpack Compose, Navigation Component, Hilt, Retrofit, OkHttp, Moshi, Room, WorkManager, DataStore, CameraX, ML Kit Barcode Scanning, ZXing, ASP.NET Core 8, Entity Framework Core, SQL Server cu migrare către Azure SQL Database, JWT, Swagger/OpenAPI, Docker Compose, Azure Container Apps, Flask, OpenCV, TensorFlow și Keras. În continuare, fiecare grup de tehnologii este prezentat atât din perspectiva rolului general, cât și din perspectiva modului în care a fost folosit în BeeSmart.
+
+\section{Kotlin și platforma Android}
+
+Aplicația mobilă este implementată în Kotlin, limbaj recomandat în ecosistemul Android pentru dezvoltarea aplicațiilor moderne \cite{kotlinDocs}. Kotlin este potrivit pentru BeeSmart deoarece oferă o sintaxă concisă, suport pentru null-safety și integrare naturală cu coroutines. Într-o aplicație care execută operații de rețea, acces la bază de date locală, procesare de fișiere și actualizare de interfață, aceste caracteristici reduc cantitatea de cod repetitiv și riscul de erori comune.
+
+Configurația Android a proiectului se află în fișierul Gradle al modulului mobil\footnote{Fișierul analizat este \path{BeeSmart/app/build.gradle.kts}.}. Aplicația are namespace-ul \path{com.example.beesmart}, folosește compile SDK 36, target SDK 36 și minimum SDK 26. Această alegere indică orientarea către versiuni moderne de Android, păstrând totuși compatibilitatea cu dispozitive care nu sunt neapărat foarte recente. Pentru o aplicație de teren, această compatibilitate contează: utilizatorii pot folosi telefoane diferite, iar aplicația nu trebuie să depindă de cele mai noi dispozitive.
+
+Proiectul folosește Gradle cu versiuni centralizate în \path{gradle/libs.versions.toml}. Această organizare este utilă deoarece păstrează într-un singur loc versiunile bibliotecilor precum Hilt, Room, WorkManager, Retrofit, CameraX și ML Kit. Într-un proiect cu multe dependențe, centralizarea versiunilor reduce riscul ca module diferite să folosească variante incompatibile ale aceleiași biblioteci.
+
+\section{Jetpack Compose, fragmente și navigare}
+
+Interfața grafică este construită în principal cu Jetpack Compose, toolkit declarativ pentru Android \cite{androidComposeDocs}. În Compose, interfața este descrisă prin funcții care primesc stare și produc UI. Această abordare se potrivește aplicației BeeSmart deoarece multe ecrane depind de stări observabile: liste de stupine, status de sincronizare, formular de inspecție, rezultat meteo, rezultat AI sau mesaj de eroare.
+
+Pe lângă Compose, aplicația păstrează și elemente clasice de navigare Android. Ecranele Compose sunt găzduite în fragmente, iar destinațiile sunt definite prin Navigation Component \cite{androidNavigationDocs}. Această combinație hibridă a fost o decizie de proiectare conștientă: am dorit să beneficiem de avantajele Compose pentru construirea interfeței fără să renunțăm la infrastructura matură de navigare oferită de Android. În practică, un flux poate porni dintr-un fragment, iar conținutul vizual propriu-zis este randat printr-un ecran Compose.
+
+Din perspectiva utilizatorului, această alegere tehnologică nu este vizibilă direct. El vede ecrane pentru login, listă de stupine, listă de stupi, detalii, formulare și statistici. Din perspectiva dezvoltării, separarea dintre navigare și compunerea UI ajută la organizarea proiectului pe domenii funcționale. Ecranele pot fi grupate în pachete precum autentificare, stupine, stupi, inspecții, tratamente, extracții, task-uri, notificări și profil.
+
+Jetpack Compose se potrivește și cu Material 3, biblioteca folosită pentru componente vizuale moderne. BeeSmart folosește carduri, câmpuri de formular, butoane, pictograme, liste și stări de încărcare. Pentru o aplicație apicolă, interfața trebuie să fie clară și practică: utilizatorul are nevoie să introducă rapid date, să vadă ce este sincronizat și să ajungă ușor la stupul dorit.
+
+\section{MVVM, stare reactivă, Hilt și DataStore}
+
+Arhitectura clientului Android urmează modelul MVVM. Ecranele Compose afișează starea și transmit evenimente, ViewModel-urile coordonează logica de ecran, iar repository-urile realizează accesul la rețea și la baza locală. Această separare limitează responsabilitatea fiecărui strat. Un ecran de formular nu trebuie să știe cum se construiește cererea Retrofit sau cum se inserează o entitate Room; el trebuie să știe ce câmpuri afișează și cum reacționează la acțiunile utilizatorului.
+
+ViewModel-urile folosesc \path{StateFlow}. Kotlin Coroutines și Flow sunt potrivite pentru operații asincrone, deoarece permit suspendarea operațiilor fără blocarea thread-ului și modelarea fluxurilor de date care se schimbă în timp \cite{kotlinCoroutinesDocs}. În BeeSmart, acest lucru apare în încărcarea listelor, observarea datelor locale, pornirea sincronizării și actualizarea UI.
+
+Pentru injecția de dependențe este folosit Hilt, soluție Android construită peste Dagger \cite{androidHiltDocs}. Modulele din pachetul \path{di} configurează baza de date, cei trei clienți OkHttp și cele 11 repository-uri (\path{Auth}, \path{Apiary}, \path{Hive}, \path{Task}, \path{Treatment}, \path{Extraction}, \path{Inspection}, \path{Home}, \path{UserProfile}, \path{Weather}, \path{NotificationHistory}). Un ViewModel primește dependențele necesare fără să le creeze manual, iar în teste ele pot fi înlocuite cu implementări controlate sau cu servere mock.
+
+Pe lângă Room, aplicația folosește DataStore pentru informații mici legate de sesiune \cite{androidDataStoreDocs}. \path{SessionManager} salvează access token-ul, refresh token-ul, timpul de expirare, profilul utilizatorului și id-ul utilizatorului curent. Această separare față de Room este justificată: token-urile și preferințele nu necesită relații sau interogări SQL, iar salvarea id-ului de cont ajută aplicația să evite amestecarea cache-ului local al unui utilizator cu datele altuia la schimbarea sesiunii.
+
+\section{Retrofit, OkHttp, Moshi și autentificare}
+
+Comunicarea dintre aplicația Android și backend este realizată prin Retrofit \cite{retrofitDocs}, care permite declararea endpoint-urilor ca interfețe Kotlin. În BeeSmart există interfețe API pentru autentificare, stupine, stupi, task-uri, tratamente, extracții, inspecții și vreme.
+
+OkHttp este clientul HTTP de bază \cite{okhttpDocs}. BeeSmart folosește trei clienți distincți, separați prin calificatori Hilt: \path{@UnauthenticatedClient} pentru login și înregistrare, \path{@AuthenticatedClient} pentru toate endpoint-urile protejate și \path{@OpenWeatherClient} pentru API-ul meteo. Această separare împiedică, de exemplu, ca logica de refresh token să afecteze un request de login sau ca un request meteo să interacționeze cu circuit breaker-ul backend-ului principal.
+
+Serializarea JSON este realizată prin Moshi \cite{moshiDocs}. Moshi transformă obiectele Kotlin în JSON pentru request-uri și invers. Moshi este folosit și în mecanismul de sincronizare: payload-urile operațiilor offline sunt serializate în coadă ca JSON și reconstruite la sincronizare.
+
+Autentificarea se bazează pe access token JWT și refresh token. Access token-ul este trimis în header-ul \path{Authorization: Bearer} \cite{jwtRfc}. \path{AuthInterceptor} adaugă token-ul la cererile protejate, verifică expirarea și încearcă refresh-ul sincron, protejat de un \path{Mutex} pentru a preveni refresh-uri concurente. După un refresh eșuat, există un interval de backoff de 30 de secunde, astfel încât aplicația să cadă rapid pe datele locale în loc să rămână blocată. Pe backend, secretul JWT este verificat la pornire; aplicația refuză să pornească dacă secretul lipsește sau are mai puțin de 32 de caractere.
+
+\section{Room și persistența locală}
+
+Room este biblioteca Android folosită pentru acces la baza locală SQLite \cite{androidRoomDocs}. Ea oferă un strat de abstractizare peste SQLite, cu entități, DAO-uri și verificare la compilare pentru interogări. În BeeSmart, Room este fundamentul funcționării offline. Fără o bază locală, aplicația ar fi obligată să trimită fiecare operație direct la server.
+
+Baza locală este definită în \path{AppDatabase.kt} (versiunea 7) și conține 10 entități: \path{ApiaryEntity}, \path{HiveEntity}, \path{TaskEntity}, \path{TreatmentEntity}, \path{ExtractionEntity}, \path{InspectionEntity}, \path{InspectionPhotoEntity}, \path{SyncQueueEntity}, \path{InspectionAiAnalysisEntity} și \path{NotificationHistoryEntity}. Această structură arată că baza locală nu este doar un cache temporar pentru liste; ea modelează aproape întregul domeniu al aplicației.
+
+Entitățile locale conțin câmpuri care nu sunt neapărat prezente în același mod pe server. Cele mai importante sunt identificatorul local, identificatorul de server și starea de sincronizare. Identificatorul local permite aplicației să creeze relații între entități înainte ca serverul să confirme id-urile finale. De exemplu, utilizatorul poate crea offline o stupină, apoi un stup în acea stupină și apoi o inspecție pentru stup. Toate aceste entități trebuie să aibă relații locale valide până când sincronizarea le asociază cu id-uri de server.
+
+\section{WorkManager și sincronizarea offline-first}
+
+WorkManager este tehnologia Android folosită pentru lucrări persistente în fundal, care trebuie executate chiar dacă aplicația nu este în prim-plan \cite{androidWorkManagerDocs}. În BeeSmart, WorkManager este folosit împreună cu \path{SyncWorker} și \path{SyncScheduler} pentru a porni sincronizarea atunci când există conexiune. Totuși, logica efectivă de sincronizare se află în \path{SyncManager}.
+
+Mecanismul offline-first se bazează pe \path{SyncQueueEntity}. Când utilizatorul creează, modifică sau șterge date fără conexiune, repository-ul salvează entitatea în Room și adaugă în coadă o operație. Coada reține tipul operației, tipul entității, id-ul local, id-ul de server dacă există, payload-ul JSON, numărul de retry-uri și momentul creării. Această structură permite aplicației să reia sincronizarea după întreruperi.
+
+\begin{figure}[H]
+	\centering
+	\resizebox{\textwidth}{!}{%
+		\begin{tikzpicture}[
+			syncstep/.style={draw, rounded corners=3pt, fill=gray!8, minimum height=0.95cm, text width=2.55cm, align=center, font=\small},
+			queue/.style={draw, rounded corners=3pt, fill=yellow!16, minimum height=0.95cm, text width=3.05cm, align=center, font=\small},
+			service/.style={draw, rounded corners=3pt, fill=green!10, minimum height=0.95cm, text width=3.15cm, align=center, font=\small},
+			arrow/.style={-{Latex[length=2mm]}, thick},
+			defer/.style={-{Latex[length=2mm]}, dashed, thick}
+			]
+			\node[syncstep] (offline) {Operație realizată offline\\creare / actualizare / ștergere};
+			\node[queue, right=0.65cm of offline] (queue) {\texttt{SyncQueueEntity}\\payload JSON + retry count};
+			\node[service, right=0.65cm of queue] (scheduler) {\texttt{SyncScheduler}\\\texttt{WorkManager}};
+			\node[service, right=0.65cm of scheduler] (manager) {\texttt{SyncManager}\\procesează coada};
+			
+			\node[syncstep, below=1.15cm of manager, xshift=-5.55cm] (apiary) {1. \texttt{APIARY}\\stupina primește id server};
+			\node[syncstep, right=0.45cm of apiary] (hive) {2. \texttt{HIVE}\\folosește id-ul stupinei};
+			\node[syncstep, right=0.45cm of hive] (middle) {3. \texttt{TASK}\\\texttt{TREATMENT}\\\texttt{EXTRACTION}};
+			\node[syncstep, right=0.45cm of middle] (inspection) {4. \texttt{INSPECTION}\\folosește id-ul stupului};
+			\node[syncstep, right=0.45cm of inspection] (photo) {5. \texttt{INSPECTION\_}\\\texttt{PHOTO}\\atașată inspecției};
+			
+			\node[service, below=1.05cm of middle] (server) {Backend ASP.NET Core\\SQL Server / Azure SQL};
+			\node[queue, below=1.05cm of inspection] (deferred) {Dependență lipsă\\operație amânată};
+			
+			\draw[arrow] (offline) -- (queue);
+			\draw[arrow] (queue) -- (scheduler);
+			\draw[arrow] (scheduler) -- (manager);
+			\draw[arrow] (manager.south) |- (apiary.north);
+			\draw[arrow] (apiary) -- (hive);
+			\draw[arrow] (hive) -- (middle);
+			\draw[arrow] (middle) -- (inspection);
+			\draw[arrow] (inspection) -- (photo);
+			\draw[arrow] (photo.south) |- (server.east);
+			\draw[defer] (inspection) -- (deferred);
+			\draw[defer] (deferred.west) -- ++(-0.7,0) |- (queue.south);
+	\end{tikzpicture}}
+	\caption{Ordinea de execuție a sincronizării offline-first în BeeSmart. Creările sunt trimise în ordinea dependențelor, iar operațiile copil sunt amânate până când părintele primește identificator de server.}
+	\label{fig:ordine-sincronizare-offline}
+\end{figure}
+
+Ordinea sincronizării este esențială. Codul procesează creările în ordinea: \path{APIARY} \(\rightarrow\) \path{HIVE} \(\rightarrow\) \path{TASK} \(\rightarrow\) \path{TREATMENT} \(\rightarrow\) \path{EXTRACTION} \(\rightarrow\) \path{INSPECTION} \(\rightarrow\) \path{INSPECTION_PHOTO}. Această ordine respectă dependențele dintre entități. Un stup nu poate fi creat pe server înainte ca stupina lui să aibă id de server; o fotografie nu poate fi atașată înainte ca inspecția părinte să existe. Dacă o dependență nu este încă rezolvată, operația este amânată, nu tratată imediat ca eșuată.
+
+Politica de erori diferențiază între probleme de rețea și răspunsuri HTTP invalide. În cazul unor erori de tip \path{IOException}, contorul de reîncercări nu crește, deoarece problema poate fi temporară și independentă de payload. În cazul răspunsurilor HTTP nereușite, contorul crește, iar după trei încercări entitatea poate fi marcată ca eșuată. Această distincție este importantă pentru aplicații mobile, unde lipsa semnalului nu trebuie interpretată automat ca eroare de date.
+
+\section{ASP.NET Core 8 și arhitectura backend}
+
+Backend-ul este implementat în ASP.NET Core 8, framework Microsoft pentru aplicații web și API-uri \cite{aspnetCoreDocs}. ASP.NET Core este potrivit pentru BeeSmart deoarece oferă suport integrat pentru controllere, dependency injection, middleware, autentificare, configurare, logging și integrare cu Entity Framework Core. În proiect, backend-ul este organizat pe straturi: API, Application, Domain și Infrastructure.
+
+Stratul API conține controllerele REST. Acestea primesc cereri HTTP, validează modelul de intrare și apelează serviciile. Stratul Application conține DTO-uri, interfețe, opțiuni și excepții. Stratul Domain conține entitățile de business, iar Infrastructure include \path{AppDbContext}, repository-urile, serviciile concrete, logica de email, JWT și integrarea cu serviciul AI.
+
+Această organizare reduce cuplarea dintre transportul HTTP și logica de domeniu. De exemplu, un controller de inspecții nu ar trebui să știe detalii despre modul în care Entity Framework Core salvează o analiză AI. El primește cererea, extrage utilizatorul din token și pasează operația către serviciu. Serviciul verifică ownership-ul, normalizează datele și folosește repository-ul potrivit.
+
+\section{Entity Framework Core și SQL Server}
+
+Persistența pe server este realizată prin Entity Framework Core, ORM-ul Microsoft pentru .NET \cite{efCoreDocs}. EF Core permite definirea entităților C\# și maparea lor la tabele SQL. În BeeSmart, \path{AppDbContext} definește seturi pentru utilizatori, token-uri, stupine, stupi, task-uri, inspecții, fotografii, analize AI, tratamente și extracții.
+
+Baza de date folosită este SQL Server \cite{sqlServerDocs}, pornită prin Docker Compose pe baza imaginii oficiale Microsoft SQL Server 2022. Pe această variantă a fost realizată proiectarea inițială a schemei și a migrațiilor. Ulterior, pentru găzduirea publică a aplicației, am migrat persistența la Azure SQL Database, serviciul gestionat Microsoft compatibil binar cu SQL Server \cite{azureSqlDocs}. Această compatibilitate a fost o decizie de proiectare deliberată: același set de migrații Entity Framework Core și aceeași definiție a entităților funcționează în ambele variante, fără modificări la nivelul stratului de domeniu.
+
+Relațiile dintre entități sunt configurate explicit în \path{OnModelCreating}. De exemplu, un utilizator are stupine, o stupină are stupi, un stup are inspecții, tratamente și extracții, iar o inspecție poate avea fotografii și analize AI. Pentru unele relații, precum task-urile legate opțional de stupină sau stup, am ales \path{DeleteBehavior.NoAction}, pentru a evita conflictele de cascade.
+
+Entity Framework Core este util și pentru migrații. În \path{Program.cs}, backend-ul aplică migrațiile la pornire, cu retry-uri în cazul în care baza de date nu este încă disponibilă. Această logică se potrivește cu Docker Compose, unde API-ul și SQL Server pornesc ca servicii separate, iar serverul de bază de date poate avea nevoie de câteva secunde pentru inițializare.
+
+\section{Swagger/OpenAPI și documentarea API-ului}
+
+API-ul backend este documentat prin Swagger/OpenAPI. OpenAPI oferă un format standard pentru descrierea endpoint-urilor, parametrilor, răspunsurilor și schemelor folosite de un API REST \cite{swaggerSpec}. În BeeSmart, Swagger este configurat în \path{Program.cs} și include o schemă de securitate Bearer pentru JWT.
+
+În etapa de dezvoltare a BeeSmart, Swagger a fost util pentru testarea endpoint-urilor independent de clientul Android. Interfața generată automat a permis verificarea rapidă a contractelor pentru autentificare, stupine, stupi și inspecții, iar documentarea consecventă a redus riscul ca API-ul să fie consumat în mod greșit de aplicația mobilă.
+
+Pentru a evita expunerea publică a documentației interactive, am configurat activarea interfeței Swagger doar în mediul de dezvoltare. Această alegere păstrează beneficiile documentației la îndemâna echipei, fără a oferi unui consumator extern detalii despre structura internă a API-ului.
+
+\section{Docker Compose și rularea locală}
+
+Docker Compose este folosit pentru pornirea backend-ului, a bazei de date și a serviciului AI ca un ansamblu de containere \cite{dockerComposeDocs}. Fișierul \path{docker-compose.yml} definește trei servicii: \path{sqlserver}, \path{ai-service} și \path{apiaryserver}. Serviciul API depinde de SQL Server și de serviciul AI, iar variabilele de mediu configurează conexiunea la baza de date și URL-ul intern al serviciului AI.
+
+Această configurație simplifică pornirea ansamblului. În loc ca SQL Server, Python, Flask și toate dependențele să fie instalate manual, Docker Compose pornește componentele într-un mod repetabil, pe baza acelorași imagini și a acelorași variabile de mediu. Astfel, fluxul complet poate fi exersat în mod consistent: aplicația Android apelează backend-ul, backend-ul persistă datele și trimite imaginea către serviciul AI pentru detecția și clasificarea celulelor.
+
+\section{Azure Container Apps}
+
+În aplicația Android, URL-ul de bază al API-ului este configurat către endpoint-ul public al backend-ului găzduit în Azure Container Apps. Fișierul \path{NetworkConfig.kt} păstrează această adresă ca valoare de configurare a clientului, destinată exclusiv backend-ului BeeSmart. Aplicația Android nu apelează direct serviciul AI, ci comunică numai cu API-ul, care la rândul lui apelează intern serviciul AI. Această separare păstrează un singur punct public de contact și simplifică gestionarea autentificării, a rate limiting-ului și a verificărilor de ownership.
+
+Azure Container Apps este o platformă serverless pentru aplicații containerizate, cu suport pentru expunerea endpoint-urilor, microservicii, ingress HTTPS, scalare și gestionarea reviziilor \cite{azureContainerAppsDocs}. Pentru BeeSmart, această tehnologie s-a potrivit deoarece atât backend-ul ASP.NET Core, cât și serviciul AI Python sunt construite ca imagini Docker, iar promovarea lor către cloud nu a necesitat rescrieri de cod. În configurația adoptată, API-ul este expus public prin Azure Container Apps, iar serviciul AI rămâne accesibil doar intern, prin rețeaua internă a mediului.
+
+În deployment-ul actual, serviciul AI rulează cu cel puțin o replică activă pentru a evita timpul de pornire al modelelor DeepBee la prima cerere. După testarea pe telefon fizic, containerul AI a fost configurat cu 2 CPU și 4 GiB RAM, iar scalarea este permisă până la trei replici. Backend-ul folosește un timeout de 180 de secunde pentru cererile AI, deoarece analiza unei rame poate include mii de celule detectate și clasificate.
+
+Parametrii importanți ai serviciului AI sunt controlați prin variabile de mediu: \path{DEEPBEE_SEGMENTATION_MAX_SIDE}, \path{DEEPBEE_SEGMENTATION_BATCH_SIZE} și \path{DEEPBEE_CLASSIFICATION_BATCH_SIZE}. Această configurare permite ajustarea consumului de memorie și a timpului de procesare fără schimbarea codului aplicației.
+
+Pe partea de persistență, deploy-ul în Azure a fost completat prin migrarea bazei de date de la SQL Server local către Azure SQL Database \cite{azureSqlDocs}. Astfel, infrastructura de producție a aplicației este unificată în jurul ecosistemului Azure: containerul backend-ului comunică cu instanța gestionată a bazei de date prin string de conexiune dedicat, iar aplicația Android consumă un singur endpoint HTTPS pentru toate fluxurile. Mediul local de dezvoltare păstrează în continuare SQL Server în Docker, ceea ce a permis testarea rapidă a migrațiilor Entity Framework Core și a logicii de acces la date înainte de promovarea modificărilor către instanța din cloud.
+
+Găzduirea publică a backend-ului a fost relevantă și pentru validarea aplicației pe dispozitive reale. Clientul Android a putut fi testat pe telefon, în afara rețelei locale, ceea ce a simplificat verificarea fluxurilor de scanare QR, încărcare de fotografii, autentificare și sincronizare.
+
+\section{Configurarea și gestionarea secretelor}
+
+O aplicație full-stack necesită o gestionare disciplinată a parametrilor de configurare și a secretelor, indiferent de mediul în care rulează. În BeeSmart am separat aceste valori de codul sursă și le-am organizat în surse de configurare dedicate. Cheia OpenWeatherMap este citită din \path{local.properties}, fișier ignorat de Git, astfel încât să nu fie inclusă în istoricul versiunilor. Parola bazei de date este injectată în Docker Compose prin variabila \path{DB_PASSWORD}, iar pe partea de cloud este preluată din configurația mediului Azure. Pe backend, secretul JWT este verificat la pornire: aplicația refuză să pornească dacă valoarea lipsește sau este sub pragul de lungime impus.
+
+Această abordare separă două categorii de parametri. Pe de o parte, valorile publice — precum URL-ul backend-ului expus prin Azure Container Apps — sunt incluse direct în configurația aplicației Android, deoarece reprezintă informație destinată consumului public. Pe de altă parte, secretele propriu-zise — parole, chei API, secret JWT — sunt accesate exclusiv prin variabile de mediu sau prin fișiere ignorate de Git, astfel încât rotația și restricționarea lor să poată fi realizate fără modificări de cod.
+
+\section{OpenWeatherMap și date contextuale}
+
+BeeSmart integrează date meteo prin OpenWeatherMap \cite{openWeatherDocs}. Pe Android, cheia API este citită din \path{local.properties}, astfel încât să nu fie introdusă în repository. \path{WeatherRepository} folosește geocodare, vreme curentă, prognoză și date despre poluarea aerului. Rezultatele de geocodare sunt cache-uite, iar răspunsurile meteo au un TTL de 30 de minute.
+
+Pentru apicultură, vremea este relevantă deoarece activitatea albinelor depinde de temperatură, vânt, precipitații și condiții de zbor. În BeeSmart există și un \path{BeeFlightAdvisor}, care transformă datele brute meteo într-o evaluare simplificată a condițiilor de zbor. Această funcție nu este un model științific complex, dar adaugă context util în interfață.
+
+Integrarea OpenWeatherMap este un exemplu de serviciu extern care nu trebuie să afecteze backend-ul principal. De aceea, aplicația folosește un client Retrofit separat pentru vreme. Dacă API-ul meteo este indisponibil, aplicația poate afișa o stare de indisponibilitate fără să blocheze fluxurile de management apicol.
+
+\section{CameraX, ML Kit Barcode Scanning și ZXing}
+
+Aplicația include funcții de QR și deep link. CameraX este folosit pentru acces modern la camera dispozitivului \cite{cameraXDocs}. ML Kit Barcode Scanning permite detectarea codurilor QR din fluxul camerei \cite{mlkitBarcodeDocs}, iar ZXing este folosit pentru generarea codurilor QR \cite{zxingProject}. În BeeSmart, fiecare stup poate fi asociat cu un link de tip deep link, iar codul QR poate fi scanat pentru deschiderea rapidă a fișei stupului.
+
+Această funcționalitate este potrivită pentru teren. În loc ca apicultorul să caute manual un stup în listă, poate scana codul atașat fizic pe stup. Deep link-ul poate folosi schema proprie \path{beesmart://} sau schema HTTPS configurată prin variabile Gradle. În proiect, gazda implicită este \path{app.beesmart.ro}, iar adresele pentru stupi pot avea forma \path{/hive/{hiveId}}.
+
+Din punct de vedere tehnic, folosirea CameraX și ML Kit separă două responsabilități. CameraX se ocupă de captarea imaginii, iar ML Kit interpretează conținutul vizual pentru a detecta codul. ZXing completează fluxul invers, generând codul care va fi imprimat sau salvat.
+
+\section{Recunoaștere vocală}
+
+BeeSmart include și un mecanism de introducere vocală a datelor, încapsulat în \path{VoiceCommandManager}. Acesta folosește API-ul Android \path{SpeechRecognizer}, care permite aplicațiilor să trimită audio către un serviciu de recunoaștere disponibil pe dispozitiv \cite{androidSpeechRecognizerDocs}. Limba implicită este româna, configurată prin \path{ro-RO}, iar rezultatele sunt transmise către ViewModel printr-un \path{Flow}.
+
+După recunoaștere, textul este procesat prin reguli simple pentru completarea unor câmpuri. De exemplu, expresii precum \enquote{numele este}, \enquote{locația este}, \enquote{temperatura este} sau \enquote{rame cu puiet} sunt asociate unor câmpuri din formular. Această abordare nu este un sistem NLP complex, dar este suficientă pentru comenzi scurte de teren. Ea poate reduce timpul de introducere a datelor atunci când utilizatorul nu vrea să tasteze.
+
+Funcția se bazează exclusiv pe API-ul de recunoaștere vocală oferit de platforma Android, nu pe un serviciu propriu de procesare a limbajului natural. Prin urmare, introducerea vocală reprezintă o îmbunătățire de ergonomie a interfeței, nu o componentă AI dezvoltată în cadrul proiectului.
+
+\section{Serviciul AI: Flask, OpenCV, TensorFlow și Keras}
+
+Serviciul AI este implementat în Python și se află în directorul \path{ApiaryServer/ApiaryServer/AIService}. El folosește Flask pentru expunerea endpoint-urilor HTTP \path{/analyze} și \path{/health} \cite{flaskDocs}, OpenCV pentru procesarea imaginilor \cite{opencvDocs}, TensorFlow și Keras pentru încărcarea modelelor DeepBee \cite{tensorflowDocs,kerasDocs}. Modelele folosite sunt \path{classification.h5} și \path{segmentation.h5}, provenite din articolul DeepBee \cite{deepbeeArticle} și din implementarea de referință disponibilă public \cite{deepbeeSource}. Fișierul \path{requirements.txt} indică versiuni specifice, printre care TensorFlow 1.14.0 și Keras 2.2.4.
+
+Fluxul serviciului este următorul. Backend-ul trimite o imagine Base64. Serviciul decodează imaginea, verifică dacă payload-ul este valid, calculează metrici de calitate și respinge fotografiile prea mici, prea neclare, prea întunecate, supraexpuse sau cu contrast insuficient. Dacă imaginea trece aceste verificări, serviciul aplică segmentarea semantică, detectează celulele prin Hough Circle Transform pe canalul roșu, extrage regiuni proporționale cu raza celulei, le redimensionează la 224 x 224 pixeli și le preprocesează cu \path{preprocess_input}. Clasificarea este executată în loturi, pentru ca serviciul să nu încarce simultan în memorie toate crop-urile rezultate dintr-o ramă densă.
+
+Ordinea claselor interpretate din modelul de clasificare este \path{Capped}, \path{Eggs}, \path{Honey}, \path{Larves}, \path{Nectar}, \path{Other} și \path{Pollen}. Această ordine este preluată din repository-ul DeepBee și este esențială deoarece ieșirea modelului este un vector numeric de probabilități. Rezultatul serviciului conține numărul de celule pe fiecare clasă, un status și metadate de calitate. Statusul poate indica succes, imagine de calitate scăzută, imagine care nu pare fagure sau analiză incertă. Această logică este importantă deoarece un model AI nu trebuie forțat să ofere un rezultat aparent precis pentru o imagine nepotrivită.
+
+În backend, \path{AiAnalysisService} trimite imaginea către serviciul Python prin \path{HttpClient}. Endpoint-ul \path{POST inspections/analyze-cells} validează Base64-ul, păstrează metadatele \path{quality} returnate de AI și tratează erorile de serviciu prin răspunsuri HTTP precum 502 sau 504. Astfel, clientul Android primește un răspuns controlat, nu o eroare brută de infrastructură.
+
+\section{Tehnologii de testare}
+
+Partea Android include teste JVM cu JUnit, Robolectric, Room in-memory și MockWebServer. Robolectric permite rularea unor teste Android pe JVM, fără emulator, și poate include resurse Android în testele unitare \cite{robolectricDocs}. MockWebServer permite simularea răspunsurilor HTTP, ceea ce este util pentru verificarea repository-urilor și a sincronizării fără dependență de un server real.
+
+În proiect există un \path{SyncTestHarness}, care leagă o bază Room in-memory, un client Retrofit real și un server mock. Această infrastructură testează scenarii offline-online: se setează aplicația offline, se creează entități locale, apoi se reactivează conexiunea, se pun răspunsuri mock și se rulează \path{SyncManager}. Testele verifică atât cererile HTTP primite de serverul mock, cât și starea bazei locale și golirea cozii.
+
+Backend-ul are un proiect separat de teste xUnit. Testele acoperă servicii precum \path{ApiaryService} și \path{AiAnalysisService}, inclusiv cazuri de ownership, mapare a datelor și tratare a erorilor de la serviciul AI.
+\section{Observații privind alegerea tehnologiilor}
+
+Stiva tehnologică BeeSmart este coerentă cu tipul aplicației. Kotlin, Compose, Room și WorkManager susțin partea mobilă offline-first. Retrofit, OkHttp și Moshi oferă comunicarea cu backend-ul. ASP.NET Core și Entity Framework Core susțin un API robust, persistent inițial pe SQL Server și migrat ulterior pe Azure SQL Database pentru varianta publică. Docker Compose asigură un mediu local reproductibil, iar Azure Container Apps găzduiește backend-ul accesibil utilizatorilor. Flask, OpenCV, TensorFlow și Keras permit separarea analizei AI într-un serviciu specializat.
+
+În același timp, tehnologiile nu sunt suficiente prin simpla lor prezență. Valoarea proiectului apare din modul în care sunt conectate: repository-urile decid între rețea și Room, coada de sincronizare păstrează operațiile offline, backend-ul verifică ownership-ul, iar serviciul AI este apelat prin API, nu direct din aplicația mobilă. Această integrare va fi susținută în capitolul teoretic prin concepte precum trasabilitate, offline-first, consistență eventuală, clasificarea imaginilor și responsabilitatea interpretării rezultatelor AI.

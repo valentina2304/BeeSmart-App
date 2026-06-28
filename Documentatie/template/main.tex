@@ -1,0 +1,79 @@
+\documentclass[a4paper,12pt]{report}
+
+\usepackage{amsmath}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\usepackage{indentfirst}
+\usepackage{fancyref}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage[style=numeric,backend=biber]{biblatex}
+\addbibresource{./BiB_files/bibliography.bib}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shapes.multipart}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{lipsum}
+\usepackage[romanian]{babel}
+\usepackage{xspace}
+\usepackage{csquotes}
+\usepackage{fontspec}
+
+\setlength{\emergencystretch}{3em}
+\sloppy
+
+
+%\pdfminorversion=6
+\setmainfont[Path = fonts/,
+ AutoFakeSlant=0.3,
+ Extension = .otf,
+ UprightFont = UTSans-Regular,
+ BoldFont = UTSans-Medium,
+ ItalicFont=UTSans-Regular,
+ BoldItalicFont=UTSans-Medium
+ ]{UTSans}
+
+\begin{document}
+
+\include{./TeX_files/cover}
+\include{./TeX_files/innercover}
+
+\tableofcontents
+% Fără spațiu vertical între capitole în lista de figuri
+\begingroup
+\renewcommand*{\addvspace}[1]{}
+\listoffigures
+\endgroup
+
+\include{./TeX_files/abrevieri}
+
+\include{./TeX_files/chapter01}
+\include{./TeX_files/chapter02}
+\include{./TeX_files/chapter03}
+\include{./TeX_files/chapter04}
+\include{./TeX_files/chapter05}
+\include{./TeX_files/chapter06}
+
+\printbibliography[title=Bibliografie]
+
+% Raport de similaritate Turnitin (paginile 1, 2 și 3), atașat după bibliografie
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[height=0.96\textheight,width=\textwidth,keepaspectratio]{./images/raport-similaritate-p1.png}
+\end{center}
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[height=0.96\textheight,width=\textwidth,keepaspectratio]{./images/raport-similaritate-p2.png}
+\end{center}
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[height=0.96\textheight,width=\textwidth,keepaspectratio]{./images/raport-similaritate-p3.png}
+\end{center}
+
+\end{document}

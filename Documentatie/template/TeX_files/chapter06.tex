@@ -1,0 +1,61 @@
+\chapter{Concluzii și perspective viitoare}
+\label{chap:concluzii}
+
+\section{Concluzii}
+
+Lucrarea a prezentat proiectarea și implementarea BeeSmart, o aplicație mobilă offline-first pentru management apicol, integrată cu un backend ASP.NET Core, o bază de date SQL Server și un serviciu AI inspirat de DeepBee. Proiectul demonstrează că un sistem pentru apicultori poate combina evidența practică a stupilor cu funcționalități moderne precum sincronizare offline-online, deep links, scanare QR, notificări locale, meteo și analiză automată a fotografiilor de rame.
+
+Din punct de vedere funcțional, BeeSmart acoperă fluxurile principale ale unei aplicații de management apicol: autentificare, profil utilizator, creare de stupine, adăugare de stupi, completare de inspecții, atașare de fotografii, înregistrare de tratamente și extracții, planificare de task-uri și consultarea statisticilor. Aceste funcții sunt legate între ele printr-o structură de date coerentă, astfel încât istoricul unui stup poate fi urmărit în timp.
+
+Din punct de vedere tehnic, contribuția principală este arhitectura offline-first. Room permite salvarea locală a datelor, iar \texttt{SyncQueueEntity} păstrează operațiile care trebuie trimise ulterior la server. \texttt{SyncManager} procesează coada în ordinea dependențelor, ceea ce permite crearea offline a unor lanțuri de date, cum ar fi stupină - stup - inspecție - fotografie. Această abordare este potrivită pentru apicultură, deoarece lucrul în teren nu garantează conexiune permanentă la internet.
+
+Integrarea AI adaugă o direcție suplimentară de valoare. Fotografia de inspecție nu este doar arhivată, ci poate fi analizată pentru obținerea unei distribuții de celule. Rezultatele sunt transformate în indicatori precum puiet, rezerve, densitate de puiet și raport larve/puiet căpăcit. Astfel, aplicația poate oferi un suport decizional orientativ, fără a înlocui observația apicultorului sau diagnosticul veterinar.
+
+\section{Avantajele aplicației}
+
+Principalele avantaje ale aplicației sunt:
+\begin{itemize}
+	\item centralizarea datelor despre stupine, stupi și intervenții;
+	\item funcționarea offline și sincronizarea automată ulterioară;
+	\item păstrarea fotografiilor de inspecție în contextul inspecției;
+	\item integrarea analizei DeepBee în fluxul aplicației;
+	\item statistici longitudinale pe stup și indicatori derivați;
+	\item organizarea task-urilor și notificări locale;
+	\item acces rapid la stup prin cod QR și deep links;
+	\item suport pentru meteo pe baza locației stupinei;
+	\item interacțiune prin introducere vocală pentru completarea formularelor.
+\end{itemize}
+
+Un alt avantaj este separarea clară între client, backend și serviciul AI. Această separare face proiectul extensibil. De exemplu, serviciul AI poate fi îmbunătățit fără rescrierea aplicației Android, iar backend-ul poate fi scalat sau mutat într-un mediu cloud fără modificarea majoră a interfeței.
+
+\section{Limitări actuale}
+
+Aplicația are și limitări care trebuie menționate. În primul rând, analiza AI depinde de calitatea fotografiei. O imagine neclară, prea întunecată sau care nu surprinde frontal fagurele poate produce un rezultat slab sau poate fi respinsă. Deși serviciul AI include praguri de calitate, acest lucru nu elimină complet riscul interpretărilor incorecte.
+
+În al doilea rând, stocarea fotografiilor ca Data URI/Base64 este potrivită pentru prototip și demonstrație, dar nu este ideală pentru producție. O variantă mai robustă ar fi folosirea unui serviciu de stocare a obiectelor și salvarea în baza de date doar a metadatelor și a URL-urilor.
+
+În al treilea rând, rezolvarea conflictelor între mai multe dispozitive nu este complet implementată. Aplicația gestionează bine operațiile offline pe un singur dispozitiv, dar scenariile în care mai mulți utilizatori sau mai multe dispozitive modifică aceleași date necesită reguli suplimentare.
+
+În al patrulea rând, testarea interfeței grafice nu este complet automatizată. Repository-ul conține teste solide pentru sincronizare și servicii, însă o versiune matură ar trebui să includă teste UI, teste instrumentate pe dispozitive reale și validare mai extinsă a serviciului AI pe imagini variate de rame.
+
+În al cincilea rând, în stadiul actual de dezvoltare clienții HTTP ai aplicației Android (\texttt{UnauthenticatedClient} și \texttt{AuthenticatedClient}) sunt configurați să accepte toate certificatele TLS, printr-un \texttt{TrustManager} permisiv (\texttt{TrustAllCerts}). Această alegere a simplificat testarea împotriva backend-ului local și a celui găzduit, dar dezactivează validarea lanțului de certificate și expune comunicarea unui posibil atac de tip man-in-the-middle. Pentru o versiune de producție, această configurație trebuie înlocuită cu validarea standard a certificatelor emise de o autoritate de încredere și, ideal, cu certificate pinning pentru domeniile cunoscute ale backend-ului.
+
+\section{Perspective viitoare}
+
+O direcție naturală de dezvoltare este îmbunătățirea modelului AI. Serviciul actual poate fi extins cu o implementare mai completă a segmentării semantice, cu modele antrenate pe imagini locale și cu evaluare sistematică pe seturi de test. De asemenea, modelul ar putea returna nu doar număr de celule pe clasă, ci și coordonate, scoruri de încredere și hărți vizuale peste imagine.
+
+O altă direcție este introducerea predicțiilor privind evoluția stupului. Pe baza istoricului de inspecții, tratamente, extracții, meteo și analize AI, aplicația ar putea estima dacă o colonie are o evoluție pozitivă sau dacă există semnale de scădere. Aceste predicții ar trebui tratate ca recomandări orientative și validate pe date reale.
+
+Pentru apicultorii cu multe stupine, un dashboard web ar fi util. Acesta ar putea afișa hărți, rapoarte, grafice comparative și alerte la nivel de stupină. Backend-ul existent ar putea susține o astfel de extensie, deoarece expune deja API-uri REST și persistă datele centralizat.
+
+Alertarea inteligentă este o altă direcție posibilă. În forma actuală, notificările sunt locale și orientate către task-uri. În viitor, sistemul ar putea genera alerte pe baza condițiilor meteo, a termenelor de tratament, a datelor istorice și a rezultatelor AI. De exemplu, o scădere repetată a indicatorului de puiet ar putea genera o alertă de verificare.
+
+Integrarea senzorilor IoT este, de asemenea, o dezvoltare potrivită pentru BeeSmart. Date precum temperatura internă a stupului, umiditatea, greutatea sau sunetul coloniei ar putea completa inspecțiile manuale. O astfel de integrare ar transforma aplicația într-un sistem de monitorizare mai amplu, nu doar într-o aplicație de evidență.
+
+În final, aplicația ar putea susține partajarea datelor cu alți apicultori, consultanți sau medici veterinari. Această funcție ar necesita un model de permisiuni mai complex, dar ar putea crește utilitatea aplicației în ferme apicole mai mari sau în contexte de colaborare.
+
+\section{Concluzie finală}
+
+BeeSmart demonstrează că o aplicație de management apicol poate fi construită prin integrarea unor tehnologii moderne într-o arhitectură coerentă. Lucrarea îmbină dezvoltarea Android, backend-ul web, persistarea datelor, sincronizarea offline-first și analiza automată a imaginilor. Rezultatul este un prototip funcțional, cu utilitate practică pentru apicultori și cu direcții clare de extindere.
+
+Prin modul în care leagă observațiile manuale, fotografiile, analiza AI și istoricul stupului, BeeSmart propune un model de aplicație în care tehnologia nu înlocuiește experiența apicultorului, ci o completează. Acesta este, de fapt, obiectivul central al proiectului: transformarea datelor colectate în teren în informații organizate, persistente și utile pentru decizii mai bune.

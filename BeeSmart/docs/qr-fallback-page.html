@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BeeSmart – Deschide aplicația</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+      margin: 0;
+      background: #fff8e1;
+      color: #3e2723;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    main {
+      background: white;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      padding: 32px;
+      box-shadow: 0 20px 60px rgba(62, 39, 35, 0.2);
+      text-align: center;
+    }
+    button, a.cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1rem;
+      padding: 12px 20px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+      background: linear-gradient(120deg, #ffca28, #f9a825);
+      box-shadow: 0 12px 24px rgba(251, 192, 45, 0.4);
+    }
+    button.secondary {
+      margin-top: 16px;
+      background: transparent;
+      color: #f9a825;
+      border: 2px solid rgba(249, 168, 37, 0.5);
+      box-shadow: none;
+    }
+    .hint {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #6d4c41;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="/static/beesmart-logo.svg" alt="BeeSmart" width="82" height="82" style="margin-bottom: 16px;" />
+    <h1>Deschide stupul în aplicație</h1>
+    <p>Încercăm să pornim aplicația BeeSmart.
+      Dacă nu se întâmplă nimic în câteva secunde, apasă butonul de mai jos pentru a descărca aplicația.</p>
+    <button id="open-app">Deschide aplicația</button>
+    <a class="cta" id="store-link" href="https://play.google.com/store/apps/details?id=com.example.beesmart" rel="noopener">Descarcă din Play Store</a>
+    <p class="hint" id="status">Pregătim link-ul...</p>
+  </main>
+
+  <script>
+    (function() {
+      const hiveId = window.location.pathname.split("/").pop();
+      const status = document.getElementById("status");
+      const customScheme = "beesmart://hive/" + hiveId;
+      const androidIntent = "intent://hive/" + hiveId + "#Intent;scheme=beesmart;package=com.example.beesmart;end";
+
+      function openApp() {
+        status.textContent = "Încercăm să deschidem aplicația...";
+        const now = Date.now();
+
+        // Method 1: custom scheme
+        window.location.href = customScheme;
+
+        // Fallback timer
+        setTimeout(() => {
+          if (Date.now() - now < 1600) {
+            // Browser refused custom scheme (probably app not installed)
+            window.location.href = document.getElementById("store-link").href;
+          }
+        }, 1400);
+      }
+
+      document.getElementById("open-app").addEventListener("click", openApp);
+      document.addEventListener("DOMContentLoaded", openApp);
+
+      // In Chrome 25+ use intent:// to avoid chooser UI when possible
+      setTimeout(() => {
+        if (/Android/i.test(navigator.userAgent)) {
+          window.location.replace(androidIntent);
+        }
+      }, 200);
+    })();
+  </script>
+</body>
+</html>

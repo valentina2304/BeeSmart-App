@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.beesmart.ui.auth.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_login_to_forgotPassword"
+            app:destination="@id/forgotPasswordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.beesmart.ui.auth.register.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register" />
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.beesmart.ui.home.HomeFragment"
+        android:label="fragment_home">
+        <action
+            android:id="@+id/action_home_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_home_to_apiaries"
+            app:destination="@id/apiaryListFragment"/>
+        <action
+            android:id="@+id/action_home_to_tasks"
+            app:destination="@id/taskListFragment" />
+        <action
+            android:id="@+id/action_home_to_userProfile"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_home_to_inspectionList"
+            app:destination="@id/inspectionListFragment" />
+        <action
+            android:id="@+id/action_home_to_qrScanner"
+            app:destination="@id/qrScannerFragment" />
+        <action
+            android:id="@+id/action_home_to_createInspection"
+            app:destination="@id/createInspectionFragment" />
+        <action
+            android:id="@+id/action_home_to_treatmentList"
+            app:destination="@id/treatmentListFragment" />
+        <action
+            android:id="@+id/action_home_to_extractionList"
+            app:destination="@id/extractionListFragment" />
+        <action
+            android:id="@+id/action_home_to_notificationHistory"
+            app:destination="@id/notificationHistoryFragment" />
+        <action
+            android:id="@+id/action_home_to_analytics"
+            app:destination="@id/analyticsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/analyticsFragment"
+        android:name="com.example.beesmart.ui.analytics.AnalyticsFragment"
+        android:label="Analize și prognoză">
+        <action
+            android:id="@+id/action_analytics_to_apiaries"
+            app:destination="@id/apiaryListFragment" />
+        <action
+            android:id="@+id/action_analytics_to_inspectionList"
+            app:destination="@id/inspectionListFragment" />
+        <action
+            android:id="@+id/action_analytics_to_treatmentList"
+            app:destination="@id/treatmentListFragment" />
+        <action
+            android:id="@+id/action_analytics_to_extractionList"
+            app:destination="@id/extractionListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/notificationHistoryFragment"
+        android:name="com.example.beesmart.ui.notifications.NotificationHistoryFragment"
+        android:label="Notificările tale" />
+
+    <fragment
+        android:id="@+id/apiaryListFragment"
+        android:name="com.example.beesmart.ui.apiaries.ApiaryListFragment"
+        android:label="Stupinele mele"
+        tools:layout="@layout/fragment_apiary">
+        <action
+            android:id="@+id/action_apiaryList_to_createApiary"
+            app:destination="@id/createApiaryFragment" />
+        <action
+            android:id="@+id/action_apiaryList_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_apiaryListFragment_to_hiveListFragment"
+            app:destination="@id/hiveListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createApiaryFragment"
+        android:name="com.example.beesmart.ui.apiaries.CreateApiaryFragment"
+        android:label="Stupină nouă"
+        tools:layout="@layout/fragment_create_apiary">
+        <argument
+            android:name="apiaryId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hiveListFragment"
+        android:name="com.example.beesmart.ui.hives.HiveListFragment"
+        android:label="Stupi"
+        tools:layout="@layout/fragment_hive_list">
+        <argument
+            android:name="apiaryId"
+            app:argType="string" />
+        <argument
+            android:name="apiaryName"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_hiveListFragment_to_createHiveFragment"
+            app:destination="@id/createHiveFragment" />
+        <action
+            android:id="@+id/action_hiveListFragment_to_editHiveFragment"
+            app:destination="@id/editHiveFragment" />
+        <action
+            android:id="@+id/action_hiveListFragment_to_inspectionListFragment"
+            app:destination="@id/inspectionListFragment" />
+        <action
+            android:id="@+id/action_hiveListFragment_to_hiveDetailFragment"
+            app:destination="@id/hiveDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createHiveFragment"
+        android:name="com.example.beesmart.ui.hives.CreateHiveFragment"
+        android:label="Adaugă stup"
+        tools:layout="@layout/fragment_create_hive">
+        <argument
+            android:name="apiaryId"
+            app:argType="string" />
+        <argument
+            android:name="apiaryName"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editHiveFragment"
+        android:name="com.example.beesmart.ui.hives.EditHiveFragment"
+        android:label="Editează stupul"
+        tools:layout="@layout/fragment_edit_hive">
+        <argument
+            android:name="hiveId"
+            app:argType="string" />
+        <deepLink
+            app:uri="beesmart://hive/{hiveId}" />
+        <deepLink
+            app:uri="@string/bee_hive_deeplink_https" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.example.beesmart.ui.tasks.TaskListFragment"
+        android:label="Task-uri"
+        tools:layout="@layout/fragment_task_list">
+        <action
+            android:id="@+id/action_taskList_to_createTask"
+            app:destination="@id/createTaskFragment" />
+        <action
+            android:id="@+id/action_taskList_to_editTask"
+            app:destination="@id/createTaskFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createTaskFragment"
+        android:name="com.example.beesmart.ui.tasks.CreateTaskFragment"
+        android:label="Task"
+        tools:layout="@layout/fragment_create_task">
+        <argument
+            android:name="taskId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.beesmart.ui.auth.forgotpassword.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
+
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.example.beesmart.ui.auth.resetpassword.ResetPasswordFragment"
+        android:label="fragment_reset_password"
+        tools:layout="@layout/fragment_reset_password">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="token"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_resetPassword_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.beesmart.ui.profile.UserProfileFragment"
+        android:label="Profil"
+        tools:layout="@layout/fragment_user_profile">
+        <action
+            android:id="@+id/action_userProfile_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inspectionListFragment"
+        android:name="com.example.beesmart.ui.inspections.InspectionListFragment"
+        android:label="@string/inspections"
+        tools:layout="@layout/fragment_inspection_list">
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="hiveName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="apiaryId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="apiaryName"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_inspectionList_to_createInspection"
+            app:destination="@id/createInspectionFragment" />
+
+        <action
+            android:id="@+id/action_inspectionList_to_inspectionDetail"
+            app:destination="@id/inspectionDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createInspectionFragment"
+        android:name="com.example.beesmart.ui.inspections.CreateInspectionFragment"
+        android:label="@string/add_inspection"
+        tools:layout="@layout/fragment_create_inspection">
+        <argument
+            android:name="inspectionId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inspectionDetailFragment"
+        android:name="com.example.beesmart.ui.inspections.InspectionDetailFragment"
+        android:label="@string/inspection_details"
+        tools:layout="@layout/fragment_inspection_detail">
+
+        <argument
+            android:name="inspectionId"
+            app:argType="string" />
+
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+
+        <action
+            android:id="@+id/action_inspectionDetail_to_createInspection"
+            app:destination="@id/createInspectionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hiveDetailFragment"
+        android:name="com.example.beesmart.ui.hives.HiveDetailFragment"
+        android:label="Detalii stup">
+        <argument
+            android:name="hiveId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_hiveDetail_to_treatmentList"
+            app:destination="@id/treatmentListFragment" />
+        <action
+            android:id="@+id/action_hiveDetail_to_extractionList"
+            app:destination="@id/extractionListFragment" />
+        <action
+            android:id="@+id/action_hiveDetail_to_hiveStats"
+            app:destination="@id/hiveStatsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/hiveStatsFragment"
+        android:name="com.example.beesmart.ui.hives.HiveStatsFragment"
+        android:label="Raport DeepBee">
+        <argument
+            android:name="hiveId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/qrScannerFragment"
+        android:name="com.example.beesmart.ui.qrcode.QrScannerFragment"
+        android:label="Scanează cod QR" />
+
+    <fragment
+        android:id="@+id/treatmentListFragment"
+        android:name="com.example.beesmart.ui.treatment.TreatmentListFragment"
+        android:label="Tratamente">
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_treatmentList_to_createTreatment"
+            app:destination="@id/createTreatmentFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createTreatmentFragment"
+        android:name="com.example.beesmart.ui.treatment.CreateTreatmentFragment"
+        android:label="Adaugă Tratament">
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="treatmentId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/extractionListFragment"
+        android:name="com.example.beesmart.ui.extraction.ExtractionListFragment"
+        android:label="Extracții">
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_extractionList_to_createExtraction"
+            app:destination="@id/createExtractionFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createExtractionFragment"
+        android:name="com.example.beesmart.ui.extraction.CreateExtractionFragment"
+        android:label="Adaugă Extracție">
+        <argument
+            android:name="hiveId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="extractionId"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+</navigation>
